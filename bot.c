@@ -197,13 +197,16 @@ int connectirc(char *server, int port)
     struct sockaddr_in address;
     struct in_addr inaddr;
     struct hostent *host;
+    FILE *log;
 
     if ((sckt = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         errprint("socket()");
         return -1;
     }
-    printf("socket created\n");
+    //printf("socket created\n");
+    log = fopen("./bot.log", "a");
+    fprintf(log, "socket created\n");
 
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
@@ -219,7 +222,11 @@ int connectirc(char *server, int port)
     if (host == NULL)
     {
         errprint("host not found");
-        if (close(sckt) == -1) printf("error close(sckt)\n");
+        if (close(sckt) == -1) 
+        {
+            //printf("error close(sckt)\n");
+            fprintf(log, "error close(sckt)\n");
+        }
         return -1;
     }
     memcpy(&address.sin_addr, host->h_addr_list[0], sizeof(address.sin_addr));
@@ -230,19 +237,25 @@ int connectirc(char *server, int port)
         close(sckt);
         return -1;
     }
-    printf("connected to %s\n", inet_ntoa(address.sin_addr));
+    //printf("connected to %s\n", inet_ntoa(address.sin_addr));
+    fprintf(log, "connected to %s\n", inet_ntoa(address.sin_addr));
+
+    fclose(log);
 
     return sckt;
 }
 
 int disconnectirc(int sckt)
 {
+    FILE *log;
+    log = fopen("./bot.log", "a");
     quit("Terminated...", sckt);
-    printf("disconnecting...\n");
+    fprintf(log, "disconnecting...\n");
     sleep(1);
     if (close(sckt) == -1)
         return -1;
-    printf("disconnected\n");
+    fprintf(log, "disconnected\n");
+    fclose(log);
     return 0;
 }
 
@@ -493,27 +506,36 @@ int readserver(char *s, int sckt)
 {
     char tmp[MAX];
     int bytesread;
+    FILE *log;
+
+    log = fopen("./bot.log", "a");
 
     if (readline(sckt, tmp, sizeof(tmp)) == -1)
     {
         errprint("writeserver()");
         return -1;
     }
-    printf("%s", tmp);
+    fprintf(log, "%s", tmp);
     /*strcpy(s, tmp);*/
     snprintf(s, MAX, "%s", tmp);
+    fclose(log);
     return 0;
 }
 
 int writeserver(char *s, int sckt)
 {
+    FILE *log;
+
+    log = fopen("./bot.log", "a");
+
     /*if (write(sckt, s, strlen(s)) == -1)*/
     if (write(sckt, s, strnlen(s, MAX)) == -1)
     {
         errprint("writeserver()");
         return -1;
     }
-    printf("%s", s);
+    fprintf(log, "%s", s);
+    fclose(log);
     return 0;
 }
 
@@ -594,13 +616,19 @@ int getmsg(char *s, char *key)
 
 void errprint(char *s)
 {
-    fprintf(stderr, "ERROR %s\n", s);
+    FILE *log;
+    log = fopen("./bot.log", "a");
+    //fprintf(stderr, "ERROR %s\n", s);
+    fprintf(log, "ERROR %s\n", s);
 }
 
 int getrand(int a)
 {
     int fd;
     int random;
+    FILE *log;
+
+    log = fopen("./bot.log", "a");
 
     fd = open("/dev/urandom", O_RDONLY);
     read(fd, &random, sizeof(int));
@@ -616,7 +644,9 @@ int getrand(int a)
     random = t.tv_nsec % a;
     */
 
-    printf("random number generated: %d\n", random);
+    fprintf(log, "random number generated: %d\n", random);
+    fclose(log);
+
     return random;
 }
 
