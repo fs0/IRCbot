@@ -107,16 +107,18 @@ int yesnoq(char *s, char *nick);
 /* read from server
  * parameter s: string where the text of the server will be saved
  * parameter sckt: connected socket
+ * parameter logging: only write to log if logging==1
  * returns: 0 if successful, -1 else
  */
-int readserver(char *s, int sckt);
+int readserver(char *s, int sckt, int logging);
 
 /* send command to server
  * parameter s: command
  * parameter sckt: connected socket
+ * parameter logging: only write to log if logging==1
  * returns: 0 if successful, -1 else
  */
-int writeserver(char *s, int sckt);
+int writeserver(char *s, int sckt, int logging);
 
 /* get operating system info
  * parameter info: info string

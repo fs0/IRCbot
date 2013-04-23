@@ -24,7 +24,7 @@ int waitForResponse(int sckt)
     while (1==1)
     { 
         memset(serverline, 0, MAX);
-        readserver(serverline, sckt);
+        readserver(serverline, sckt, 1);
         if (strfind(serverline, ":End of /MOTD"))
         {
             return 0;
@@ -62,7 +62,7 @@ int loop(int sckt, char *nick, char *channel)
     while (1==1)
     {
         memset(serverline, 0, MAX);
-        readserver(serverline, sckt);
+        readserver(serverline, sckt, 1);
         
         if (strfind(serverline, "PING :") == 1)
         {
@@ -271,7 +271,7 @@ int loginpass(int sckt)
     char tmp[MAX];
     /*strcpy(tmp, "PASS drowssap\r\n");*/
     snprintf(tmp, MAX, "%s", "PASS drowssap\r\n");
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -287,7 +287,7 @@ int privatemsg(char *msg, char *dest, int sckt)
     strncat(tmp, " :", MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, msg, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -303,7 +303,7 @@ int setuser(char *username, char *realname, int sckt)
     strncat(tmp, " 0 * :", MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, realname, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
-    if (writeserver(tmp, sckt) == -1 )
+    if (writeserver(tmp, sckt, 1) == -1 )
     {
         return -1;
     }
@@ -317,7 +317,7 @@ int joinchannel(char *channel, int sckt)
     snprintf(tmp, MAX, "%s", "JOIN ");
     strncat(tmp, channel, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -331,7 +331,7 @@ int setnick(char *nick, int sckt)
     snprintf(tmp, MAX, "%s", "NICK ");
     strncat(tmp, nick, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -348,7 +348,7 @@ int sendcommand(char *s, int sckt)
     {
         return -1;
     }
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -362,7 +362,7 @@ int quit(char *msg, int sckt)
     snprintf(tmp, MAX, "%s", "QUIT ");
     strncat(tmp, msg, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
@@ -394,7 +394,7 @@ int sendpong(int sckt, char *s)
         /*strcpy(tmp2, "PONG");*/
         snprintf(tmp2, MAX, "%s", "PONG");
     }
-    if (writeserver(tmp2, sckt) == -1)
+    if (writeserver(tmp2, sckt, 0) == -1)
     {
         return -1;
     }
@@ -509,7 +509,7 @@ int yesnoq(char *s, char *nick)
 }
 
 
-int readserver(char *s, int sckt)
+int readserver(char *s, int sckt, int logging)
 {
     char tmp[MAX];
     int bytesread;
@@ -519,17 +519,27 @@ int readserver(char *s, int sckt)
 
     if (readline(sckt, tmp, sizeof(tmp)) == -1)
     {
-        errprint("writeserver()");
+        errprint("readserver()");
         return -1;
     }
-    fprintf(log, "%s", tmp);
+
+    // don't log pings
+    if (strfind(tmp, "PING :") == 1)
+    {
+        logging = 0;
+    }
+    
+    if (logging == 1)
+    {
+        fprintf(log, "%s", tmp);
+    }
     /*strcpy(s, tmp);*/
     snprintf(s, MAX, "%s", tmp);
     fclose(log);
     return 0;
 }
 
-int writeserver(char *s, int sckt)
+int writeserver(char *s, int sckt, int logging)
 {
     FILE *log;
 
@@ -541,7 +551,10 @@ int writeserver(char *s, int sckt)
         errprint("writeserver()");
         return -1;
     }
-    fprintf(log, "%s", s);
+    if (logging == 1)
+    {
+        fprintf(log, "%s", s);
+    }
     fclose(log);
     return 0;
 }
@@ -575,19 +588,19 @@ int getIP(char *ip, char *nick, int sckt)
     strncat(tmp, nick, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt) == -1)
+    if (writeserver(tmp, sckt, 1) == -1)
     {
         return -1;
     }
 
-    if (readserver(ip, sckt) == -1)
+    if (readserver(ip, sckt, 1) == -1)
     {
         return -1;
     }
 
     memset(tmp, 0, MAX);
 
-    if (readserver(ip, sckt) == -1)
+    if (readserver(ip, sckt, 1) == -1)
     {
         return -1;
     }
