@@ -17,11 +17,25 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    sckt = connectirc(argv[1], atoi(argv[2]));
-    if (sckt == -1)
+    do
     {
-        return -1;
-    }
+        sckt = connectirc(argv[1], atoi(argv[2]));
 
-    return init(sckt, argv[3], "guest", "Name", argv[4]);
+        if (sckt == -1)
+        {
+            ret = -1;
+        }
+        else
+        {
+            ret = init(sckt, argv[3], "guest", "Name", argv[4]);
+        }
+
+        if (ret == -1)
+        {
+            sleep(120); // wait 2 min until reconnect
+        }
+
+    } while (ret == -1);
+
+    return 0;
 }

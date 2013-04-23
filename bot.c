@@ -1,7 +1,6 @@
 #include "bot.h"
 
 /*TODO regular expressions?*/
-/*TODO reconnect if disconnected, use ret*/
 /*TODO correct error handling*/
 /*TODO clean up string/message functions*/
 
@@ -24,7 +23,10 @@ int waitForResponse(int sckt)
     while (1==1)
     { 
         memset(serverline, 0, MAX);
-        readserver(serverline, sckt, 1);
+        if (readserver(serverline, sckt, 1) == -1)
+        {
+            return -1;
+        }
         if (strfind(serverline, ":End of /MOTD"))
         {
             return 0;
@@ -62,7 +64,10 @@ int loop(int sckt, char *nick, char *channel)
     while (1==1)
     {
         memset(serverline, 0, MAX);
-        readserver(serverline, sckt, 1);
+        if (readserver(serverline, sckt, 1) == -1)
+        {
+            return -1;
+        }
         
         if (strfind(serverline, "PING :") == 1)
         {
@@ -128,7 +133,7 @@ int loop(int sckt, char *nick, char *channel)
         }
     }
 
-    ret = privatemsg("I'll be back.", channel, sckt);
+    privatemsg("I'll be back.", channel, sckt);
     disconnectirc(sckt);
 
     return ret;
@@ -149,8 +154,8 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
             return 0;
         }
         strncpy(tmp, serverline+1, usernamecount(serverline));
-        strcat(tmp, ": ");
-        strcat(tmp, "Hello.");
+        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
+        strncat(tmp, "Hello.", MAX-strnlen(tmp, MAX)-1);
         ret = privatemsg(tmp , channel, sckt);
     }
     else if (strend(serverline, "?") == 1 && yesnoq(serverline, nick) == 1) /*yes no question?*/
@@ -161,12 +166,12 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
             return 0;
         }
         strncpy(tmp, serverline+1, usernamecount(serverline));
-        strcat(tmp, ": ");
+        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
         switch(getrand(3))
         {
-            case 0:    strcat(tmp, "Yes."); break;
-            case 1:    strcat(tmp, "No."); break;
-            case 2: strcat(tmp, "Of course. I'm a terminator. "); break;
+            case 0:    strncat(tmp, "Yes.", MAX-strnlen(tmp, MAX)-1); break;
+            case 1:    strncat(tmp, "No.", MAX-strnlen(tmp, MAX)-1); break;
+            case 2:    strncat(tmp, "Of course. I'm a terminator. ", MAX-strnlen(tmp, MAX)-1); break;
             default: break;
         }
         ret = privatemsg(tmp , channel, sckt);
@@ -181,7 +186,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
             return 0;
         }
         strncpy(tmp, serverline+1, usernamecount(serverline));
-        strcat(tmp, ": ");
+        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
 
         if (getLine(textfileline, "./personal.txt") == -1)
         {
@@ -189,7 +194,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         }
         else
         {
-            strcat(tmp, textfileline);
+            strncat(tmp, textfileline, MAX-strnlen(tmp, MAX)-1);
             ret = privatemsg(tmp , channel, sckt);
         }
     }
@@ -204,6 +209,7 @@ int connectirc(char *server, int port)
     struct sockaddr_in address;
     struct in_addr inaddr;
     struct hostent *host;
+    struct timeval tv;
     FILE *log;
 
     if ((sckt = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -211,9 +217,13 @@ int connectirc(char *server, int port)
         errprint("socket()");
         return -1;
     }
-    //printf("socket created\n");
     log = fopen("./bot.log", "a");
     fprintf(log, "socket created\n");
+
+    tv.tv_sec = 180; // 3min timeout
+    tv.tv_usec = 0;
+
+    setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 
     address.sin_family = AF_INET;
     address.sin_port = htons(port);
@@ -260,7 +270,7 @@ int disconnectirc(int sckt)
     fprintf(log, "disconnecting...\n");
     sleep(1);
     if (close(sckt) == -1)
-        return -1;
+        errprint("close(sckt)\n");
     fprintf(log, "disconnected\n");
     fclose(log);
     return 0;
