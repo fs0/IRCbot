@@ -10,6 +10,9 @@ int main(int argc, char *argv[])
         printf("\nparameters: <server> <port> <nick> <channel>\n");
         printf("server: freenode server rotation is chat.freenode.net\n");
         printf("port: usually 6667\n");
+        printf("Additionally, you'll need two textfiles:\n");
+        printf("  messages.txt: general messages\n");
+        printf("  personal.txt: messages the bot will use when addressed personally.\n");
         printf("NOTE: put a \\ before the # of the channelname\n\n");
         return -1;
     }

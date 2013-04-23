@@ -89,6 +89,13 @@ int loop(int sckt, char *nick, char *channel)
                 ret = 0;
                 break;
             }
+            else if (strfind(serverline, "!ip"))
+            {
+                memset(tmp, 0, MAX);
+                if (getIP(tmp, nick, sckt) == -1)
+                    errprint("getIP()");
+                ret = privatemsg(tmp, channel, sckt);
+            }
             else if (strfind(serverline, "!send "))
             {
                 if (sendcommand(serverline, sckt) == -1)
@@ -555,6 +562,37 @@ int osinfo(char *info)
     strncat(info, name.release, MAX-strnlen(info, MAX)-1);
     strncat(info, ", architecture: ", MAX-strnlen(info, MAX)-1);
     strncat(info, name.machine, MAX-strnlen(info, MAX)-1);
+    return 0;
+}
+
+int getIP(char *ip, char *nick, int sckt)
+{
+    char tmp[MAX];
+
+    memset(tmp, 0, MAX);
+
+    snprintf(tmp, MAX, "%s", "WHOIS ");
+    strncat(tmp, nick, MAX-strnlen(tmp, MAX)-1);
+    strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
+
+    if (writeserver(tmp, sckt) == -1)
+    {
+        return -1;
+    }
+
+    if (readserver(ip, sckt) == -1)
+    {
+        return -1;
+    }
+
+    memset(tmp, 0, MAX);
+
+    if (readserver(ip, sckt) == -1)
+    {
+        return -1;
+    }
+
+    
     return 0;
 }
 

