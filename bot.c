@@ -91,31 +91,52 @@ int loop(int sckt, char *nick, char *channel)
         
         if (strfind(serverline, "PING :") == 1)
         {
+            #ifdef DEBUG
+            logprint("strfind PING");
+            #endif
             ret = sendpong(sckt, serverline);
         }
         else if (strfind(serverline, ":!os") == 1)
         {
+            #ifdef DEBUG
+            logprint("strfind !os");
+            #endif
             memset(tmp, 0, MAX);
             osinfo(tmp);
             ret = privatemsg(tmp, channel, sckt);
         }
         else if (strfind(serverline, ":!info") == 1)
         {
+            #ifdef DEBUG
+            logprint("strfind !info");
+            #endif
             ret = privatemsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
         }
         else if (strfind(serverline, tome) == 1)
         {
+            #ifdef DEBUG
+            logprint("strfind tome");
+            #endif
             ret = answer(sckt, serverline, channel, nick);
         }
         else if (strfind(serverline, privmsg) == 1) /*private message*/
         {
+            #ifdef DEBUG
+            logprint("strfind privmsg");
+            #endif
             if (strfind (serverline, ":!shutdown") == 1) /*disconnect the bot*/
             {
+                #ifdef DEBUG
+                logprint("strfind !shutdown");
+                #endif
                 ret = 0;
                 break;
             }
             else if (strfind(serverline, "!ip"))
             {
+                #ifdef DEBUG
+                logprint("strfind !ip");
+                #endif
                 memset(tmp, 0, MAX);
                 if (getIP(tmp, nick, sckt) == -1)
                     errprint("getIP()");
@@ -123,11 +144,17 @@ int loop(int sckt, char *nick, char *channel)
             }
             else if (strfind(serverline, "!send "))
             {
+                #ifdef DEBUG
+                logprint("strfind !send");
+                #endif
                 if (sendcommand(serverline, sckt) == -1)
                     errprint("sendcommand()");
             }
             else
             {
+                #ifdef DEBUG
+                logprint("else block");
+                #endif
                 /*
                 memset(tmp, 0, MAX);
                 if (usernamecount(serverline) == -1)
@@ -139,6 +166,9 @@ int loop(int sckt, char *nick, char *channel)
         }
         else if ((getrand(20) == 0) && (strend(serverline, "?") == 0))
         {
+            #ifdef DEBUG
+            logprint("rand == 0 && strend not ?");
+            #endif
             memset(tmp, 0, MAX);
             if (getLine(tmp, "./messages.txt") == -1)
                 errprint("getmsg()");
@@ -149,6 +179,9 @@ int loop(int sckt, char *nick, char *channel)
         
         if (ret == -1)
         {
+            #ifdef DEBUG
+            logprint("ret == -1 at end of loop()");
+            #endif
             break;
         }
     }
