@@ -9,7 +9,7 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
     int ret;
 
     #ifdef DEBUG
-    logprint("start init()");
+    logprint("start init()\n");
     #endif
 
     if (loginpass(sckt) == -1) return -1;
@@ -19,7 +19,7 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
     if (joinchannel(channel, sckt) == -1) return -1;
     
     #ifdef DEBUG
-    logprint("end init()");
+    logprint("end init()\n");
     #endif
     
     return loop(sckt, nick, channel);
@@ -30,7 +30,7 @@ int waitForResponse(int sckt)
     char serverline[MAX];
 
     #ifdef DEBUG
-    logprint("start waitForResponse()");
+    logprint("start waitForResponse()\n");
     #endif
 
     while (1==1)
@@ -53,7 +53,7 @@ int waitForResponse(int sckt)
         }
     }
     #ifdef DEBUG
-    logprint("end waitForResponse()");
+    logprint("end waitForResponse()\n");
     #endif
 }
 
@@ -66,7 +66,7 @@ int loop(int sckt, char *nick, char *channel)
     int ret;
 
     #ifdef DEBUG
-    logprint("start loop()");
+    logprint("start loop()\n");
     #endif
 
     /*private message to the bot*/
@@ -92,14 +92,14 @@ int loop(int sckt, char *nick, char *channel)
         if (strfind(serverline, "PING :") == 1)
         {
             #ifdef DEBUG
-            logprint("strfind PING");
+            logprint("strfind PING\n");
             #endif
             ret = sendpong(sckt, serverline);
         }
         else if (strfind(serverline, ":!os") == 1)
         {
             #ifdef DEBUG
-            logprint("strfind !os");
+            logprint("strfind !os\n");
             #endif
             memset(tmp, 0, MAX);
             osinfo(tmp);
@@ -108,26 +108,26 @@ int loop(int sckt, char *nick, char *channel)
         else if (strfind(serverline, ":!info") == 1)
         {
             #ifdef DEBUG
-            logprint("strfind !info");
+            logprint("strfind !info\n");
             #endif
             ret = privatemsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
         }
         else if (strfind(serverline, tome) == 1)
         {
             #ifdef DEBUG
-            logprint("strfind tome");
+            logprint("strfind tome\n");
             #endif
             ret = answer(sckt, serverline, channel, nick);
         }
         else if (strfind(serverline, privmsg) == 1) /*private message*/
         {
             #ifdef DEBUG
-            logprint("strfind privmsg");
+            logprint("strfind privmsg\n");
             #endif
             if (strfind (serverline, ":!shutdown") == 1) /*disconnect the bot*/
             {
                 #ifdef DEBUG
-                logprint("strfind !shutdown");
+                logprint("strfind !shutdown\n");
                 #endif
                 ret = 0;
                 break;
@@ -135,25 +135,25 @@ int loop(int sckt, char *nick, char *channel)
             else if (strfind(serverline, "!ip"))
             {
                 #ifdef DEBUG
-                logprint("strfind !ip");
+                logprint("strfind !ip\n");
                 #endif
                 memset(tmp, 0, MAX);
                 if (getIP(tmp, nick, sckt) == -1)
-                    errprint("getIP()");
+                    errprint("getIP()\n");
                 ret = privatemsg(tmp, channel, sckt);
             }
             else if (strfind(serverline, "!send "))
             {
                 #ifdef DEBUG
-                logprint("strfind !send");
+                logprint("strfind !send\n");
                 #endif
                 if (sendcommand(serverline, sckt) == -1)
-                    errprint("sendcommand()");
+                    errprint("sendcommand()\n");
             }
             else
             {
                 #ifdef DEBUG
-                logprint("else block");
+                logprint("else block\n");
                 #endif
                 /*
                 memset(tmp, 0, MAX);
@@ -167,11 +167,11 @@ int loop(int sckt, char *nick, char *channel)
         else if ((getrand(20) == 0) && (strend(serverline, "?") == 0))
         {
             #ifdef DEBUG
-            logprint("rand == 0 && strend not ?");
+            logprint("rand == 0 && strend not ?\n");
             #endif
             memset(tmp, 0, MAX);
             if (getLine(tmp, "./messages.txt") == -1)
-                errprint("getmsg()");
+                errprint("getmsg()\n");
             else
                 ret = privatemsg(tmp, channel, sckt);
 
@@ -180,7 +180,7 @@ int loop(int sckt, char *nick, char *channel)
         if (ret == -1)
         {
             #ifdef DEBUG
-            logprint("ret == -1 at end of loop()");
+            logprint("ret == -1 at end of loop()\n");
             #endif
             break;
         }
@@ -190,7 +190,7 @@ int loop(int sckt, char *nick, char *channel)
     disconnectirc(sckt);
 
     #ifdef DEBUG
-    logprint("end loop()");
+    logprint("end loop()\n");
     #endif
 
     return ret;
@@ -204,7 +204,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     int ret;
 
     #ifdef DEBUG
-    logprint("start answer()");
+    logprint("start answer()\n");
     #endif
 
     if (strfind(serverline, "hello") == 1 || strfind(serverline, "Hello") == 1)
@@ -251,7 +251,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
 
         if (getLine(textfileline, "./personal.txt") == -1)
         {
-            errprint("getmsg()");
+            errprint("getmsg()\n");
         }
         else
         {
@@ -261,7 +261,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     }
 
     #ifdef DEBUG
-    logprint("end answer()");
+    logprint("end answer()\n");
     #endif
 
     return ret;
@@ -278,21 +278,21 @@ int connectirc(char *server, int port)
     struct timeval tv;
 
     #ifdef DEBUG
-    logprint("start connectirc()");
+    logprint("start connectirc()\n");
     #endif
 
     if ((sckt = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        errprint("socket()");
+        errprint("socket()\n");
         return -1;
     }
-    logprint("socket created");
+    logprint("socket created\n");
 
     tv.tv_sec = 180; // 3min timeout
     tv.tv_usec = 0;
 
     #ifdef DEBUG
-    logprint("setcockopt()");
+    logprint("setcockopt()\n");
     #endif
 
     setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
@@ -301,7 +301,7 @@ int connectirc(char *server, int port)
     address.sin_port = htons(port);
 
     #ifdef DEBUG
-    logprint("inet_aton()");
+    logprint("inet_aton()\n");
     #endif
 
     if (inet_aton(server, &inaddr) != 0) /*nonzero if valid*/
@@ -314,10 +314,10 @@ int connectirc(char *server, int port)
     }
     if (host == NULL)
     {
-        errprint("host not found");
+        errprint("host not found\n");
         if (close(sckt) == -1) 
         {
-            errprint("close(sckt)");
+            errprint("close(sckt)\n");
         }
         return -1;
     }
@@ -325,18 +325,20 @@ int connectirc(char *server, int port)
 
 
     #ifdef DEBUG
-    logprint("connect()");
+    logprint("connect()\n");
     #endif
     if (connect(sckt, (struct sockaddr *) &address, sizeof(address)) == -1)
     {
-        errprint("connect()");
+        errprint("connect()\n");
         close(sckt);
         return -1;
     }
-    logprint("connected"); // TODO connected to %s, inet_ntoa(address.sin_addr)
+    logprint("connected to ");
+    logprint(inet_ntoa(address.sin_addr));
+    logprint("\n");
 
     #ifdef DEBUG
-    logprint("end connectirc()");
+    logprint("end connectirc()\n");
     #endif
 
     return sckt;
@@ -345,16 +347,16 @@ int connectirc(char *server, int port)
 int disconnectirc(int sckt)
 {
     #ifdef DEBUG
-    logprint("start disconnectirc()");
+    logprint("start disconnectirc()\n");
     #endif
     quit("Terminated...", sckt);
-    logprint("disconnecting");
+    logprint("disconnecting\n");
     sleep(1);
     if (close(sckt) == -1)
-        errprint("close(sckt)");
-    logprint("disconnected");
+        errprint("close(sckt)\n");
+    logprint("disconnected\n");
     #ifdef DEBUG
-    logprint("end disconnectirc()");
+    logprint("end disconnectirc()\n");
     #endif
     return 0;
 }
@@ -362,7 +364,7 @@ int disconnectirc(int sckt)
 int loginpass(int sckt)
 {
     #ifdef DEBUG
-    logprint("start loginpass()");
+    logprint("start loginpass()\n");
     #endif
     char tmp[MAX];
     /*strcpy(tmp, "PASS drowssap\r\n");*/
@@ -372,7 +374,7 @@ int loginpass(int sckt)
         return -1;
     }
     #ifdef DEBUG
-    logprint("end loginpass()");
+    logprint("end loginpass()\n");
     #endif
     return 0;
 }
@@ -382,7 +384,7 @@ int privatemsg(char *msg, char *dest, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start privatemsg()");
+    logprint("start privatemsg()\n");
     #endif
 
     /*strcpy(tmp, "PRIVMSG ");*/
@@ -397,7 +399,7 @@ int privatemsg(char *msg, char *dest, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end privatemsg()");
+    logprint("end privatemsg()\n");
     #endif
 
     return 0;
@@ -408,7 +410,7 @@ int setuser(char *username, char *realname, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start setuser()");
+    logprint("start setuser()\n");
     #endif
 
     /*strcpy(tmp, "USER ");*/
@@ -423,7 +425,7 @@ int setuser(char *username, char *realname, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end setuser()");
+    logprint("end setuser()\n");
     #endif
 
     return 0;
@@ -434,7 +436,7 @@ int joinchannel(char *channel, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start joinchannel()");
+    logprint("start joinchannel()\n");
     #endif
 
     /*strcpy(tmp, "JOIN ");*/
@@ -447,7 +449,7 @@ int joinchannel(char *channel, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end joinchannel()");
+    logprint("end joinchannel()\n");
     #endif
 
     return 0;
@@ -458,7 +460,7 @@ int setnick(char *nick, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start setnick()");
+    logprint("start setnick()\n");
     #endif
 
     /*strcpy(tmp, "NICK ");*/
@@ -471,7 +473,7 @@ int setnick(char *nick, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end setnick()");
+    logprint("end setnick()\n");
     #endif
     
     return 0;
@@ -482,7 +484,7 @@ int sendcommand(char *s, int sckt)
     char tmp[MAX];
     
     #ifdef DEBUG
-    logprint("start sendcommand()");
+    logprint("start sendcommand()\n");
     #endif
 
     /*strcpy(tmp, s);*/
@@ -497,7 +499,7 @@ int sendcommand(char *s, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end sendcommand()");
+    logprint("end sendcommand()\n");
     #endif
 
     return 0;
@@ -508,7 +510,7 @@ int quit(char *msg, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start quit()");
+    logprint("start quit()\n");
     #endif
 
     /*strcpy(tmp, "QUIT ");*/
@@ -521,7 +523,7 @@ int quit(char *msg, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end quit()");
+    logprint("end quit()\n");
     #endif
 
     return 0;
@@ -533,7 +535,7 @@ int sendpong(int sckt, char *s)
     char tmp2[MAX];
 
     #ifdef DEBUG
-    logprint("start sendpong()");
+    logprint("start sendpong()\n");
     #endif
 
     /*strcpy(tmp, s);*/
@@ -562,7 +564,7 @@ int sendpong(int sckt, char *s)
     }
 
     #ifdef DEBUG
-    logprint("end sendpong()");
+    logprint("end sendpong()\n");
     #endif
 
     return 0;
@@ -574,7 +576,7 @@ int yesnoq(char *s, char *nick)
     char tmp2[MAX];
 
     #ifdef DEBUG
-    logprint("start yesnoq()");
+    logprint("start yesnoq()\n");
     #endif
 
     /*strcpy(tmp, nick);*/
@@ -678,7 +680,7 @@ int yesnoq(char *s, char *nick)
     }
 
     #ifdef DEBUG
-    logprint("end yesnoq()");
+    logprint("end yesnoq()\n");
     #endif
 
     return 1;
@@ -692,14 +694,14 @@ int readserver(char *s, int sckt, int logging)
     FILE *log;
 
     #ifdef DEBUG
-    logprint("start readserver()");
+    logprint("start readserver()\n");
     #endif
 
     log = fopen("./bot.log", "a");
 
     if (readline(sckt, tmp, sizeof(tmp)) == -1)
     {
-        errprint("readserver()");
+        errprint("readserver()\n");
         return -1;
     }
 
@@ -720,10 +722,11 @@ int readserver(char *s, int sckt, int logging)
     #ifdef DEBUG
     logprint("readserver: ");
     logprint(s);
+    logprint("\n");
     #endif
 
     #ifdef DEBUG
-    logprint("end readserver()");
+    logprint("end readserver()\n");
     #endif
 
     return 0;
@@ -734,7 +737,7 @@ int writeserver(char *s, int sckt, int logging)
     FILE *log;
 
     #ifdef DEBUG
-    logprint("start writeserver()");
+    logprint("start writeserver()\n");
     #endif
 
     log = fopen("./bot.log", "a");
@@ -742,7 +745,7 @@ int writeserver(char *s, int sckt, int logging)
     /*if (write(sckt, s, strlen(s)) == -1)*/
     if (write(sckt, s, strnlen(s, MAX)) == -1)
     {
-        errprint("writeserver()");
+        errprint("writeserver()\n");
         return -1;
     }
     if (logging == 1)
@@ -752,7 +755,7 @@ int writeserver(char *s, int sckt, int logging)
     fclose(log);
 
     #ifdef DEBUG
-    logprint("end writeserver()");
+    logprint("end writeserver()\n");
     #endif
 
     return 0;
@@ -763,12 +766,12 @@ int osinfo(char *info)
     struct utsname name;
 
     #ifdef DEBUG
-    logprint("start osinfo()");
+    logprint("start osinfo()\n");
     #endif
 
     if (uname(&name) == -1)
     {
-        errprint("uname()");
+        errprint("uname()\n");
         return -1;
     }
     /*strcpy(info, "System: ");*/
@@ -780,7 +783,7 @@ int osinfo(char *info)
     strncat(info, name.machine, MAX-strnlen(info, MAX)-1);
 
     #ifdef DEBUG
-    logprint("end osinfo()");
+    logprint("end osinfo()\n");
     #endif
 
     return 0;
@@ -791,7 +794,7 @@ int getIP(char *ip, char *nick, int sckt)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start getIP()");
+    logprint("start getIP()\n");
     #endif
 
     memset(tmp, 0, MAX);
@@ -818,7 +821,7 @@ int getIP(char *ip, char *nick, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end getIP()");
+    logprint("end getIP()\n");
     #endif
     
     return 0;
@@ -829,7 +832,7 @@ int strfind(char *s1, char *s2)
     int i;
 
     #ifdef DEBUG
-    logprint("start strfind()");
+    logprint("start strfind()\n");
     #endif
 
     /*for (i=0; i<strlen(s1); i++)*/
@@ -841,7 +844,7 @@ int strfind(char *s1, char *s2)
     }
 
     #ifdef DEBUG
-    logprint("end strfind()");
+    logprint("end strfind()\n");
     #endif
 
     return 0;
@@ -852,7 +855,7 @@ int usernamecount(char *s)
     int i;
 
     #ifdef DEBUG
-    logprint("start usernamecount()");
+    logprint("start usernamecount()\n");
     #endif
 
     /*for (i=2; i<strlen(s); i++)*/
@@ -863,7 +866,7 @@ int usernamecount(char *s)
         {
             return i-1;
             #ifdef DEBUG
-            logprint("end usernamecount()");
+            logprint("end usernamecount()\n");
             #endif
         }
     }
@@ -873,18 +876,18 @@ int usernamecount(char *s)
 int strend(char *s0, char *s1)
 {
     #ifdef DEBUG
-    logprint("start strend()");
+    logprint("start strend()\n");
     #endif
     /*if (strncmp(s0+strlen(s0)-3, s1, strlen(s1)) == 0)*/
     if (strncmp(s0+strnlen(s0, MAX)-3, s1, strnlen(s1, MAX)) == 0)
     {
         #ifdef DEBUG
-        logprint("end strend()");
+        logprint("end strend()\n");
         #endif
         return 1;
     }
     #ifdef DEBUG
-    logprint("end strend()");
+    logprint("end strend()\n");
     #endif
     return 0;
 }
@@ -895,7 +898,7 @@ int getmsg(char *s, char *key)
     char tmp[MAX];
 
     #ifdef DEBUG
-    logprint("start getmsg()");
+    logprint("start getmsg()\n");
     #endif
 
     /*strcpy(tmp, key);*/
@@ -911,7 +914,7 @@ int getmsg(char *s, char *key)
             /*strcpy(s, s+i+strlen(tmp));*/
             snprintf(s, MAX, "%s", s+i+strnlen(tmp, MAX));
             #ifdef DEBUG
-            logprint("end getmsg()");
+            logprint("end getmsg()\n");
             #endif
             return 0;
         }
@@ -923,7 +926,7 @@ void errprint(char *s)
 {
     FILE *log;
     log = fopen("./bot.log", "a");
-    fprintf(log, "ERROR %s\n", s);
+    fprintf(log, "ERROR %s", s);
     fclose(log);
 }
 
@@ -931,7 +934,7 @@ void logprint(char *s)
 {
     FILE *log;
     log = fopen("./bot.log", "a");
-    fprintf(log, "%s\n", s);
+    fprintf(log, "%s", s);
     fclose(log);
 }
 
@@ -942,10 +945,8 @@ int getrand(int a)
     FILE *log;
 
     #ifdef DEBUG
-    logprint("start getrand()");
+    logprint("start getrand()\n");
     #endif
-
-    log = fopen("./bot.log", "a");
 
     fd = open("/dev/urandom", O_RDONLY);
     read(fd, &random, sizeof(int));
@@ -961,11 +962,14 @@ int getrand(int a)
     random = t.tv_nsec % a;
     */
 
+    #ifdef DEBUG
+    log = fopen("./bot.log", "a");
     fprintf(log, "random number generated: %d\n", random);
     fclose(log);
+    #endif
 
     #ifdef DEBUG
-    logprint("end getrand()");
+    logprint("end getrand()\n");
     #endif
 
     return random;
@@ -977,7 +981,7 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
     char c, *ptr;
 
     #ifdef DEBUG
-    logprint("start readline()");
+    logprint("start readline()\n");
     #endif
 
     ptr = vptr;
@@ -1013,7 +1017,7 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
     *ptr = '\0';
 
     #ifdef DEBUG
-    logprint("end readline()");
+    logprint("end readline()\n");
     #endif
 
     return n;
@@ -1029,7 +1033,7 @@ int getLine(char *line, char *textfile)
     int i = 0;
 
     #ifdef DEBUG
-    logprint("start getLine()");
+    logprint("start getLine()\n");
     #endif
 
     // open file
@@ -1073,7 +1077,7 @@ int getLine(char *line, char *textfile)
     fclose(fd);
 
     #ifdef DEBUG
-    logprint("end getLine()");
+    logprint("end getLine()\n");
     #endif
 
     return 0;
