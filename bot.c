@@ -722,7 +722,6 @@ int readserver(char *s, int sckt, int logging)
     #ifdef DEBUG
     logprint("readserver: ");
     logprint(s);
-    logprint("\n");
     #endif
 
     #ifdef DEBUG
