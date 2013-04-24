@@ -5,6 +5,9 @@ CFLAGS=-c
 
 all: $(NAME)
 
+debug: CFLAGS += -DDEBUG
+debug: $(NAME)
+
 $(NAME): $(OBJ)
 	$(CC) $(OBJ) -o $@
 
