@@ -718,6 +718,11 @@ int readserver(char *s, int sckt, int logging)
     fclose(log);
 
     #ifdef DEBUG
+    logprint("readserver: ");
+    logprint(s);
+    #endif
+
+    #ifdef DEBUG
     logprint("end readserver()");
     #endif
 
