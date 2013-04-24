@@ -18,3 +18,5 @@ Additionally, you'll need two textfiles:
 * personal.txt: messages the bot will use when addressed personally.
 
 To shutdown the bot, use `/msg <nick> !shutdown`
+
+To enable debug mode, use `make debug`
