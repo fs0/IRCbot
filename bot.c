@@ -139,8 +139,14 @@ int loop(int sckt, char *nick, char *channel)
                 #endif
                 memset(tmp, 0, MAX);
                 if (getIP(tmp, nick, sckt) == -1)
+                {
                     errprint("getIP()\n");
-                ret = privatemsg(tmp, channel, sckt);
+                    ret = -1;
+                }
+                else
+                {
+                    ret = privatemsg(tmp, channel, sckt);
+                }
             }
             else if (strfind(serverline, "!send "))
             {
@@ -148,7 +154,10 @@ int loop(int sckt, char *nick, char *channel)
                 logprint("strfind !send\n");
                 #endif
                 if (sendcommand(serverline, sckt) == -1)
+                {
                     errprint("sendcommand()\n");
+                    ret = -1;
+                }
             }
             else
             {
@@ -171,9 +180,14 @@ int loop(int sckt, char *nick, char *channel)
             #endif
             memset(tmp, 0, MAX);
             if (getLine(tmp, "./messages.txt") == -1)
+            {
                 errprint("getmsg()\n");
+                ret = -1;
+            }
             else
+            {
                 ret = privatemsg(tmp, channel, sckt);
+            }
 
         }
         
