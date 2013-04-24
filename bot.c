@@ -210,15 +210,13 @@ int connectirc(char *server, int port)
     struct in_addr inaddr;
     struct hostent *host;
     struct timeval tv;
-    FILE *log;
 
     if ((sckt = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         errprint("socket()");
         return -1;
     }
-    log = fopen("./bot.log", "a");
-    fprintf(log, "socket created\n");
+    logprint("socket created\n");
 
     tv.tv_sec = 180; // 3min timeout
     tv.tv_usec = 0;
@@ -241,8 +239,7 @@ int connectirc(char *server, int port)
         errprint("host not found");
         if (close(sckt) == -1) 
         {
-            //printf("error close(sckt)\n");
-            fprintf(log, "error close(sckt)\n");
+            errprint("close(sckt)\n");
         }
         return -1;
     }
@@ -254,25 +251,19 @@ int connectirc(char *server, int port)
         close(sckt);
         return -1;
     }
-    //printf("connected to %s\n", inet_ntoa(address.sin_addr));
-    fprintf(log, "connected to %s\n", inet_ntoa(address.sin_addr));
-
-    fclose(log);
+    logprint("connected\n"); // TODO connected to %s, inet_ntoa(address.sin_addr)
 
     return sckt;
 }
 
 int disconnectirc(int sckt)
 {
-    FILE *log;
-    log = fopen("./bot.log", "a");
     quit("Terminated...", sckt);
-    fprintf(log, "disconnecting...\n");
+    logprint("disconnecting\n");
     sleep(1);
     if (close(sckt) == -1)
         errprint("close(sckt)\n");
-    fprintf(log, "disconnected\n");
-    fclose(log);
+    logprint("disconnected\n");
     return 0;
 }
 
@@ -679,8 +670,16 @@ void errprint(char *s)
 {
     FILE *log;
     log = fopen("./bot.log", "a");
-    //fprintf(stderr, "ERROR %s\n", s);
     fprintf(log, "ERROR %s\n", s);
+    fclose(log);
+}
+
+void logprint(char *s)
+{
+    FILE *log;
+    log = fopen("./bot.log", "a");
+    fprintf(log, "%s\n", s);
+    fclose(log);
 }
 
 int getrand(int a)

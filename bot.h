@@ -161,10 +161,15 @@ int strend(char *s0, char *s1);
  */
 int getmsg(char *s, char *key);
 
-/* prints error message
- * parameter s: keyword to identify the error (example "socket()")
+/* prints error message to log
+ * parameter s: error string
  */
 void errprint(char *s);
+
+/* print to logfile
+ * parameter s: string to print to log file
+ */
+void logprint(char *s);
 
 /* get a random number between 0 and a (excluding)
  * parameter a: limit 
