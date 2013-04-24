@@ -302,6 +302,10 @@ int connectirc(char *server, int port)
     }
     logprint("connected"); // TODO connected to %s, inet_ntoa(address.sin_addr)
 
+    #ifdef DEBUG
+    logprint("end connectirc()");
+    #endif
+
     return sckt;
 }
 
