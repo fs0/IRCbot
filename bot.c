@@ -62,6 +62,7 @@ int loop(int sckt, char *nick, char *channel)
     char serverline[MAX];
     char privmsg[MAX];
     char tmp[MAX];
+    char tmp2[MAX];
     char tome[MAX];
     int ret;
 
@@ -138,6 +139,7 @@ int loop(int sckt, char *nick, char *channel)
                 logprint("strfind !ip\n");
                 #endif
                 memset(tmp, 0, MAX);
+                memset(tmp2, 0, MAX);
                 if (getIP(tmp, nick, sckt) == -1)
                 {
                     errprint("getIP()\n");
@@ -145,7 +147,13 @@ int loop(int sckt, char *nick, char *channel)
                 }
                 else
                 {
-                    ret = privatemsg(tmp, channel, sckt);
+                    //ret = privatemsg(tmp, channel, sckt);
+                    if (usernamecount(serverline) != -1)
+                    {
+                        strncpy(tmp2, serverline+1, usernamecount(serverline));
+                        // write the connection info string tmp to the user tmp2
+                        ret = privatemsg(tmp, tmp2, sckt);
+                    }
                 }
             }
             else if (strfind(serverline, "!send "))
