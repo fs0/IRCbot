@@ -6,23 +6,35 @@
 
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
-    int ret;
+    int ret = 0;
 
     #ifdef DEBUG
     logprint("start init()\n");
     #endif
 
-    if (loginpass(sckt) == -1) return -1;
-    if (setnick(nick, sckt) == -1) return -1;
-    if (setuser(username, realname, sckt) == -1) return -1;
-    if (waitForResponse(sckt) == -1) return -1;
-    if (joinchannel(channel, sckt) == -1) return -1;
+    if (loginpass(sckt) == -1) ret = -1;
+    else if (setnick(nick, sckt) == -1) ret = -1;
+    else if (setuser(username, realname, sckt) == -1) ret = -1;
+    else if (waitForResponse(sckt) == -1) ret = -1;
+    else if (joinchannel(channel, sckt) == -1) ret = -1;
+    else if (loop(sckt, nick, channel) == -1) ret = -1;
+
+    if (ret == -1)
+    {
+        #ifdef DEBUG
+        logprint("trying to close socket\n");
+        #endif
+        if (close(sckt) == -1) 
+        {
+            errprint("close(sckt)\n");
+        }
+        return -1;
+    }
     
     #ifdef DEBUG
     logprint("end init()\n");
     #endif
     
-    return loop(sckt, nick, channel);
 }
 
 int waitForResponse(int sckt)
@@ -87,7 +99,8 @@ int loop(int sckt, char *nick, char *channel)
         memset(serverline, 0, MAX);
         if (readserver(serverline, sckt, 1) == -1)
         {
-            return -1;
+            //return -1;
+            ret = -1;
         }
         
         if (strfind(serverline, "PING :") == 1)
@@ -374,6 +387,9 @@ int disconnectirc(int sckt)
     quit("Terminated...", sckt);
     logprint("disconnecting\n");
     sleep(1);
+    #ifdef DEBUG
+    logprint("trying to close socket\n");
+    #endif
     if (close(sckt) == -1)
         errprint("close(sckt)\n");
     logprint("disconnected\n");
