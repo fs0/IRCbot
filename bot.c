@@ -250,6 +250,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         memset(tmp, 0, MAX);
         if (usernamecount(serverline) == -1)
         {
+            // couldn't find username, continue
             return 0;
         }
         strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
@@ -262,6 +263,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         memset(tmp, 0, MAX);
         if (usernamecount(serverline) == -1)
         {
+            // couldn't find username, continue
             return 0;
         }
         strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
@@ -282,6 +284,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
 
         if (usernamecount(serverline) == -1)
         {
+            // couldn't find username, continue
             return 0;
         }
         strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
@@ -318,10 +321,10 @@ int connectirc(char *server, char *port)
     #endif
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_UNSPEC; // allow ipv4 or ipv6
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
-    hints.ai_protocol = 0;
+    hints.ai_protocol = 0; // any protocol
 
     if (getaddrinfo(server, port, &hints, &result) != 0)
     {
@@ -336,6 +339,11 @@ int connectirc(char *server, char *port)
     #ifdef DEBUG
     logprint("start loop through address structures\n");
     #endif
+    /* getaddrinfo() returns a list of address structures.
+     * Try each address until we successfully connect.
+     * If socket() (or connect()) fails, we (close the socket
+     * and try the next address)
+     */
     for (rp = result; rp != NULL; rp = rp->ai_next)
     {
         if ((sckt = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1)
@@ -350,7 +358,7 @@ int connectirc(char *server, char *port)
             #ifdef DEBUG
             logprint("connect() successful\n");
             #endif
-            break;
+            break; // successfully connected
         }
         #ifdef DEBUG
         logprint("connect() returned -1\n");
@@ -361,6 +369,7 @@ int connectirc(char *server, char *port)
     logprint("end loop through address structures\n");
     #endif
 
+    // no address succeeded
     if (rp == NULL)
     {
         #ifdef DEBUG
@@ -386,6 +395,7 @@ int connectirc(char *server, char *port)
     logprint("setsockopt()\n");
     #endif
 
+    // set timeout
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, (socklen_t)sizeof(struct timeval)) == -1)
     {
         errprint("setsockopt()\n");

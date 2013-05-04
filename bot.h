@@ -19,12 +19,37 @@
 /* max length of message */
 #define MAX 1024
 
+/* initialization
+ * parameter sckt: socket
+ * parameter nick: nick used by the bot
+ * parameter username: username of the bot
+ * parameter realname: realname of the bot
+ * parameter channel: channel to connect to
+ * returns: 0 if successful, -1 else
+ */
 int init(int sckt, char *nick, char *username, char *realname, char *channel);
 
+/* wait for ":End of /MOTD"
+ * parameter sckt: connected socket
+ * returns: 0 if successful, -1 else
+ */
 int waitForResponse(int sckt);
 
+/* main loop
+ * parameter sckt: connected socket
+ * parameter nick: nick used by the bot
+ * parameter channel: current channel
+ * returns: 0 if successful, -1 else
+ */
 int loop(int sckt, char *nick, char *channel);
 
+/* reply to message
+ * parameter sckt: connected socket
+ * parameter serverline: received string
+ * parameter channel: current channel
+ * parameter nick: nick used by the bot
+ * returns: 0 if successful (even if no username found), -1 else
+ */
 int answer(int sckt, char *serverline, char *channel, char *nick);
 
 /* connect to irc server
