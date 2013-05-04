@@ -34,7 +34,8 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
     #ifdef DEBUG
     logprint("end init()\n");
     #endif
-    
+
+    return 0;
 }
 
 int waitForResponse(int sckt)
@@ -52,7 +53,7 @@ int waitForResponse(int sckt)
         {
             return -1;
         }
-        if (strfind(serverline, ":End of /MOTD"))
+        if (strfind(serverline, ":End of /MOTD") == 1)
         {
             return 0;
         }
@@ -67,6 +68,8 @@ int waitForResponse(int sckt)
     #ifdef DEBUG
     logprint("end waitForResponse()\n");
     #endif
+
+    return 0;
 }
 
 int loop(int sckt, char *nick, char *channel)
@@ -76,7 +79,7 @@ int loop(int sckt, char *nick, char *channel)
     char tmp[MAX];
     char tmp2[MAX];
     char tome[MAX];
-    int ret;
+    int ret = 0;
 
     #ifdef DEBUG
     logprint("start loop()\n");
@@ -146,7 +149,7 @@ int loop(int sckt, char *nick, char *channel)
                 ret = 0;
                 break;
             }
-            else if (strfind(serverline, "!ip"))
+            else if (strfind(serverline, "!ip") == 1)
             {
                 #ifdef DEBUG
                 logprint("strfind !ip\n");
@@ -163,13 +166,13 @@ int loop(int sckt, char *nick, char *channel)
                     //ret = privatemsg(tmp, channel, sckt);
                     if (usernamecount(serverline) != -1)
                     {
-                        strncpy(tmp2, serverline+1, usernamecount(serverline));
+                        strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
                         // write the connection info string tmp to the user tmp2
                         ret = privatemsg(tmp, tmp2, sckt);
                     }
                 }
             }
-            else if (strfind(serverline, "!send "))
+            else if (strfind(serverline, "!send ") == 1)
             {
                 #ifdef DEBUG
                 logprint("strfind !send\n");
@@ -236,7 +239,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
 {
     char tmp[MAX];
     char textfileline[MAX];
-    int ret;
+    int ret = 0;
 
     #ifdef DEBUG
     logprint("start answer()\n");
@@ -249,7 +252,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         {
             return 0;
         }
-        strncpy(tmp, serverline+1, usernamecount(serverline));
+        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
         strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
         strncat(tmp, "Hello.", MAX-strnlen(tmp, MAX)-1);
         ret = privatemsg(tmp , channel, sckt);
@@ -261,7 +264,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         {
             return 0;
         }
-        strncpy(tmp, serverline+1, usernamecount(serverline));
+        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
         strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
         switch(getrand(3))
         {
@@ -281,7 +284,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         {
             return 0;
         }
-        strncpy(tmp, serverline+1, usernamecount(serverline));
+        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
         strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
 
         if (getLine(textfileline, "./personal.txt") == -1)
@@ -306,7 +309,6 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
 int connectirc(char *server, int port)
 {
     int sckt;
-    const int y = 1;
     struct sockaddr_in address;
     struct in_addr inaddr;
     struct hostent *host;
@@ -330,10 +332,13 @@ int connectirc(char *server, int port)
     logprint("setcockopt()\n");
     #endif
 
-    setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
+    if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, (socklen_t)sizeof(struct timeval)) == -1)
+    {
+        errprint("setsockopt()\n");
+    }
 
     address.sin_family = AF_INET;
-    address.sin_port = htons(port);
+    address.sin_port = htons((uint16_t)port);
 
     #ifdef DEBUG
     logprint("inet_aton()\n");
@@ -341,7 +346,7 @@ int connectirc(char *server, int port)
 
     if (inet_aton(server, &inaddr) != 0) /*nonzero if valid*/
     {
-        host = gethostbyaddr((const void *) &inaddr, sizeof(inaddr), AF_INET);
+        host = gethostbyaddr((const void *) &inaddr, (socklen_t)sizeof(inaddr), AF_INET);
     }
     else
     {
@@ -362,7 +367,7 @@ int connectirc(char *server, int port)
     #ifdef DEBUG
     logprint("connect()\n");
     #endif
-    if (connect(sckt, (struct sockaddr *) &address, sizeof(address)) == -1)
+    if (connect(sckt, (struct sockaddr *) &address, (socklen_t)sizeof(address)) == -1)
     {
         errprint("connect()\n");
         close(sckt);
@@ -728,7 +733,6 @@ int yesnoq(char *s, char *nick)
 int readserver(char *s, int sckt, int logging)
 {
     char tmp[MAX];
-    int bytesread;
     FILE *log;
 
     #ifdef DEBUG
@@ -1023,7 +1027,7 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
 
     ptr = vptr;
 
-    for (n=1; n<maxlen; n++)
+    for (n=1; n < (ssize_t)maxlen; n++)
     {
         if((rc=read(fd, &c, 1)) == 1)
         {
