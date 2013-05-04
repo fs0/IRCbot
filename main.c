@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
         #ifdef DEBUG
         logprint("main(): connectirc()\n");
         #endif
-        sckt = connectirc(argv[1], atoi(argv[2]));
+        sckt = connectirc(argv[1], argv[2]);
 
         if (sckt == -1)
         {

@@ -306,76 +306,92 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
 }
 
 
-int connectirc(char *server, int port)
+int connectirc(char *server, char *port)
 {
     int sckt;
-    struct sockaddr_in address;
-    struct in_addr inaddr;
-    struct hostent *host;
+    struct addrinfo hints;
+    struct addrinfo *result, *rp;
     struct timeval tv;
 
     #ifdef DEBUG
     logprint("start connectirc()\n");
     #endif
 
-    if ((sckt = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = 0;
+    hints.ai_protocol = 0;
+
+    if (getaddrinfo(server, port, &hints, &result) != 0)
     {
-        errprint("socket()\n");
+        errprint("getaddrinfo()\n");
+        #ifdef DEBUG
+        logprint("freeaddrinfo(result)\n");
+        #endif
+        freeaddrinfo(result);
         return -1;
     }
-    logprint("socket created\n");
+
+    #ifdef DEBUG
+    logprint("start loop through address structures\n");
+    #endif
+    for (rp = result; rp != NULL; rp = rp->ai_next)
+    {
+        if ((sckt = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1)
+        {
+            #ifdef DEBUG
+            logprint("socket() returned -1\n");
+            #endif
+            continue;
+        }
+        if ((connect(sckt, rp->ai_addr, rp->ai_addrlen)) != -1)
+        { 
+            #ifdef DEBUG
+            logprint("connect() successful\n");
+            #endif
+            break;
+        }
+        #ifdef DEBUG
+        logprint("connect() returned -1\n");
+        #endif
+        close(sckt);
+    }
+    #ifdef DEBUG
+    logprint("end loop through address structures\n");
+    #endif
+
+    if (rp == NULL)
+    {
+        #ifdef DEBUG
+        logprint("rp is NULL\n");
+        #endif
+        errprint("failed to connect\n");
+        #ifdef DEBUG
+        logprint("freeaddrinfo(result)\n");
+        #endif
+        freeaddrinfo(result);
+        return -1;
+    }
+
+    #ifdef DEBUG
+    logprint("freeaddrinfo(result)\n");
+    #endif
+    freeaddrinfo(result);
 
     tv.tv_sec = 180; // 3min timeout
     tv.tv_usec = 0;
 
     #ifdef DEBUG
-    logprint("setcockopt()\n");
+    logprint("setsockopt()\n");
     #endif
 
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, (socklen_t)sizeof(struct timeval)) == -1)
     {
         errprint("setsockopt()\n");
-    }
-
-    address.sin_family = AF_INET;
-    address.sin_port = htons((uint16_t)port);
-
-    #ifdef DEBUG
-    logprint("inet_aton()\n");
-    #endif
-
-    if (inet_aton(server, &inaddr) != 0) /*nonzero if valid*/
-    {
-        host = gethostbyaddr((const void *) &inaddr, (socklen_t)sizeof(inaddr), AF_INET);
-    }
-    else
-    {
-        host = gethostbyname(server);
-    }
-    if (host == NULL)
-    {
-        errprint("host not found\n");
-        if (close(sckt) == -1) 
-        {
-            errprint("close(sckt)\n");
-        }
-        return -1;
-    }
-    memcpy(&address.sin_addr, host->h_addr_list[0], sizeof(address.sin_addr));
-
-
-    #ifdef DEBUG
-    logprint("connect()\n");
-    #endif
-    if (connect(sckt, (struct sockaddr *) &address, (socklen_t)sizeof(address)) == -1)
-    {
-        errprint("connect()\n");
         close(sckt);
         return -1;
     }
-    logprint("connected to ");
-    logprint(inet_ntoa(address.sin_addr));
-    logprint("\n");
 
     #ifdef DEBUG
     logprint("end connectirc()\n");

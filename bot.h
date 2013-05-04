@@ -32,7 +32,7 @@ int answer(int sckt, char *serverline, char *channel, char *nick);
  * parameter port: port, usually 6667
  * returns: connected socket
  */
-int connectirc(char *server, int port);
+int connectirc(char *server, char *port);
 
 /* close socket
  * parameter sckt: connected socket
