@@ -150,6 +150,15 @@ int loop(int sckt, char *nick, char *channel)
                 ret = 0;
                 break;
             }
+            if (strfind(serverline, ":!reconnect") == 1) /*disconnect/reconnect*/
+            {
+                #ifdef DEBUG
+                logprint("strfind !reconnect\n");
+                #endif
+                disconnectirc(sckt);
+                ret = -1;
+                break;
+            }
             else if (strfind(serverline, "!ip") == 1)
             {
                 #ifdef DEBUG
@@ -243,7 +252,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     logprint("start answer()\n");
     #endif
 
-    if (strfind(serverline, "hello") == 1 || strfind(serverline, "Hello") == 1)
+    if (strfind(serverline, ": hello") == 1 || strfind(serverline, ": Hello") == 1 || strfind(serverline, ": hi") == 1 || strfind(serverline, ": Hi") == 1)
     {
         memset(tmp, 0, MAX);
         if (usernamecount(serverline) == -1)
