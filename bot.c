@@ -145,7 +145,6 @@ int loop(int sckt, char *nick, char *channel)
             {
                 #ifdef DEBUG
                 logprint("strfind !shutdown\n");
-                logprint("privatemsg() and disconnectirc()");
                 #endif
                 disconnectirc(sckt); // ignore return value
                 ret = 0;
