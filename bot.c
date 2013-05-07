@@ -148,6 +148,7 @@ int loop(int sckt, char *nick, char *channel)
                 logprint("privatemsg() and disconnectirc()");
                 #endif
                 disconnectirc(sckt); // ignore return value
+                ret = 0;
                 break;
             }
             else if (strfind(serverline, "!ip") == 1)
