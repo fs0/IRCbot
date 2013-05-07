@@ -19,6 +19,7 @@ Additionally, you'll need the following textfiles:
 * passphrase: contains the passphrase (for at least a bit of security)
 
 To shutdown the bot, use `/msg <nick> !shutdown <passphrase>`
+
 To reconnect the bot, use `/msg <nick> !reconnect <passphrase>`
 
 To enable debug mode, use `make debug`
