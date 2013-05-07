@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
         printf("Additionally, you'll need two textfiles:\n");
         printf("  messages.txt: general messages\n");
         printf("  personal.txt: messages the bot will use when addressed personally.\n");
+        printf("  passphrase: contains the passphrase.\n");
         printf("NOTE: put a \\ before the # of the channelname\n\n");
         return -1;
     }

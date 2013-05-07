@@ -125,7 +125,7 @@ int sendpong(int sckt, char *s);
 /* can the message be answered with yes/no?
  * parameter s: line reveived from server
  * parameter nick: nickname
- * returns: 1 if the message can be answered with yes or no, 0 if not
+ * returns: 0 if the message can be answered with yes or no, -1 if not
  */
 int yesnoq(char *s, char *nick);
 
@@ -159,10 +159,16 @@ int osinfo(char *info);
  */
 int getIP(char *ip, char *nick, int sckt);
 
+/* check if correct passphrase in serverline
+ * parameter serverline: string received
+ * returns: 0 if passphrase correct, -1 else
+ */
+int checkPass(char *serverline);
+
 /* find s2 in s1
  * parameter s1: string to be searched in
  * parameter s2: string to be searched after
- * returns: 1 if s2 is in s1, 0 if s2 is not in s1
+ * returns: 0 if s2 is in s1, -1 if s2 is not in s1
  */
 int strfind(char *s1, char *s2);
 
@@ -175,7 +181,7 @@ int usernamecount(char *s);
 /* does s0 end with s1?
  * parameter s0: string to be searched in
  * parameter s1: string to be searched after
- * returns: 1 if s0 ends with s1, 0 if not
+ * returns: 0 if s0 ends with s1, -1 if not
  */
 int strend(char *s0, char *s1);
 
@@ -212,6 +218,7 @@ ssize_t readline(int fd, void *vptr, size_t maxlen);
 
 /* get a random line from a text file
  * parameter line: pointer to char array to store line
+ * parameter textfile: name of file
  * returns 0 if successful, -1 else
  */
 int getLine(char *line, char *textfile);

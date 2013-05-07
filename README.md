@@ -15,7 +15,8 @@ where
 
 Additionally, you'll need two textfiles:
 * messages.txt: general messages
-* personal.txt: messages the bot will use when addressed personally.
+* personal.txt: messages the bot will use when addressed personally
+* passphrase: contains the passphrase
 
 To shutdown the bot, use `/msg <nick> !shutdown`
 

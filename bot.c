@@ -53,11 +53,11 @@ int waitForResponse(int sckt)
         {
             return -1;
         }
-        if (strfind(serverline, ":End of /MOTD") == 1)
+        if (strfind(serverline, ":End of /MOTD") == 0)
         {
             return 0;
         }
-        else if (strfind(serverline, "PING :") == 1)
+        else if (strfind(serverline, "PING :") == 0)
         {
             if (sendpong(sckt, serverline) == -1) 
             {
@@ -106,14 +106,14 @@ int loop(int sckt, char *nick, char *channel)
             ret = -1;
         }
         
-        if (strfind(serverline, "PING :") == 1)
+        if (strfind(serverline, "PING :") == 0)
         {
             #ifdef DEBUG
             logprint("strfind PING\n");
             #endif
             ret = sendpong(sckt, serverline);
         }
-        else if (strfind(serverline, ":!os") == 1)
+        else if (strfind(serverline, ":!os") == 0)
         {
             #ifdef DEBUG
             logprint("strfind !os\n");
@@ -122,67 +122,105 @@ int loop(int sckt, char *nick, char *channel)
             osinfo(tmp);
             ret = privatemsg(tmp, channel, sckt);
         }
-        else if (strfind(serverline, ":!info") == 1)
+        else if (strfind(serverline, ":!info") == 0)
         {
             #ifdef DEBUG
             logprint("strfind !info\n");
             #endif
             ret = privatemsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
         }
-        else if (strfind(serverline, tome) == 1)
+        else if (strfind(serverline, tome) == 0)
         {
             #ifdef DEBUG
             logprint("strfind tome\n");
             #endif
             ret = answer(sckt, serverline, channel, nick);
         }
-        else if (strfind(serverline, privmsg) == 1) /*private message*/
+        else if (strfind(serverline, privmsg) == 0) /*private message*/
         {
             #ifdef DEBUG
             logprint("strfind privmsg\n");
             #endif
-            if (strfind (serverline, ":!shutdown") == 1) /*disconnect the bot*/
+
+            memset(tmp, 0, MAX);
+            memset(tmp2, 0, MAX);
+
+            if (strfind(serverline, ":!shutdown") == 0) /*disconnect the bot*/
             {
                 #ifdef DEBUG
                 logprint("strfind !shutdown\n");
                 #endif
-                disconnectirc(sckt); // ignore return value
-                ret = 0;
-                break;
+
+                if (checkPass(serverline) == 0)
+                {
+                    disconnectirc(sckt); // ignore return value
+                    ret = 0;
+                    break;
+                }
+                else
+                {
+                    if (usernamecount(serverline) != -1)
+                    {
+                        strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
+                        ret = privatemsg("No!", tmp2, sckt);
+                    }
+                }
             }
-            if (strfind(serverline, ":!reconnect") == 1) /*disconnect/reconnect*/
+            else if (strfind(serverline, ":!reconnect") == 0) /*disconnect/reconnect*/
             {
                 #ifdef DEBUG
                 logprint("strfind !reconnect\n");
                 #endif
-                disconnectirc(sckt);
-                ret = -1;
-                break;
+
+                if (checkPass(serverline) == 0)
+                {
+                    disconnectirc(sckt);
+                    ret = -1;
+                    break;
+                }
+                else
+                {
+                    if (usernamecount(serverline) != -1)
+                    {
+                        strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
+                        ret = privatemsg("No!", tmp2, sckt);
+                    }
+                }
             }
-            else if (strfind(serverline, "!ip") == 1)
+            else if (strfind(serverline, ":!ip") == 0)
             {
                 #ifdef DEBUG
                 logprint("strfind !ip\n");
                 #endif
-                memset(tmp, 0, MAX);
-                memset(tmp2, 0, MAX);
-                if (getIP(tmp, nick, sckt) == -1)
+
+                if (checkPass(serverline) == 0)
                 {
-                    errprint("getIP()\n");
-                    ret = -1;
+                    if (getIP(tmp, nick, sckt) == -1)
+                    {
+                        errprint("getIP()\n");
+                        ret = -1;
+                    }
+                    else
+                    {
+                        //ret = privatemsg(tmp, channel, sckt);
+                        if (usernamecount(serverline) != -1)
+                        {
+                            strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
+                            // write the connection info string tmp to the user tmp2
+                            ret = privatemsg(tmp, tmp2, sckt);
+                        }
+                    }
                 }
                 else
                 {
-                    //ret = privatemsg(tmp, channel, sckt);
                     if (usernamecount(serverline) != -1)
                     {
                         strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
-                        // write the connection info string tmp to the user tmp2
-                        ret = privatemsg(tmp, tmp2, sckt);
+                        ret = privatemsg("No!", tmp2, sckt);
                     }
                 }
             }
-            else if (strfind(serverline, "!send ") == 1)
+            /*else if (strfind(serverline, ":!send ") == 0)
             {
                 #ifdef DEBUG
                 logprint("strfind !send\n");
@@ -192,22 +230,20 @@ int loop(int sckt, char *nick, char *channel)
                     errprint("sendcommand()\n");
                     ret = -1;
                 }
-            }
+            }*/
             else
             {
                 #ifdef DEBUG
                 logprint("else block\n");
                 #endif
-                /*
-                memset(tmp, 0, MAX);
+                
                 if (usernamecount(serverline) == -1)
                     continue;
                 strncpy(tmp, serverline+1, usernamecount(serverline));
-                ret = privatemsg("Please don't write me messages.", tmp, sckt);
-                */
+                ret = privatemsg("No!", tmp, sckt);
             }
         }
-        else if ((getrand(20) == 0) && (strend(serverline, "?") == 0))
+        else if ((getrand(20) == 0) && (strend(serverline, "?") == -1))
         {
             #ifdef DEBUG
             logprint("rand == 0 && strend not ?\n");
@@ -252,7 +288,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     logprint("start answer()\n");
     #endif
 
-    if (strfind(serverline, ": hello") == 1 || strfind(serverline, ": Hello") == 1 || strfind(serverline, ": hi") == 1 || strfind(serverline, ": Hi") == 1)
+    if (strfind(serverline, ": hello") == 0 || strfind(serverline, ": Hello") == 0 || strfind(serverline, ": hi") == 0 || strfind(serverline, ": Hi") == 0)
     {
         memset(tmp, 0, MAX);
         if (usernamecount(serverline) == -1)
@@ -265,7 +301,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
         strncat(tmp, "Hello.", MAX-strnlen(tmp, MAX)-1);
         ret = privatemsg(tmp , channel, sckt);
     }
-    else if (strend(serverline, "?") == 1 && yesnoq(serverline, nick) == 1) /*yes no question?*/
+    else if (strend(serverline, "?") == 0 && yesnoq(serverline, nick) == 0) /*yes no question?*/
     {
         memset(tmp, 0, MAX);
         if (usernamecount(serverline) == -1)
@@ -628,13 +664,6 @@ int sendpong(int sckt, char *s)
         snprintf(tmp2, MAX, "%s", "PONG :");
         strncat(tmp2, tmp, MAX-strnlen(tmp2, MAX)-1);
     }
-    /*if (strfind(s, "PING :") == 1)
-    {
-        strcpy(tmp, s);
-        getmsg(tmp, "PING");
-        strcpy(tmp2, "PONG :");
-        strcat(tmp2, tmp);
-    }*/
     else
     {
         /*strcpy(tmp2, "PONG");*/
@@ -668,104 +697,104 @@ int yesnoq(char *s, char *nick)
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "Why", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "why", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "What", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "what", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "Who", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "who", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
 
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "When", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "when", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "Where", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "where", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "How", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
         
     /*strcpy(tmp2, tmp);*/
     snprintf(tmp2, MAX, "%s", tmp);
     strncat(tmp2, "how", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 1)
+    if (strfind(s, tmp2) == 0)
     {
-        return 0;
+        return -1;
     }
 
     #ifdef DEBUG
     logprint("end yesnoq()\n");
     #endif
 
-    return 1;
+    return 0;
 }
 
 
@@ -787,7 +816,7 @@ int readserver(char *s, int sckt, int logging)
     }
 
     // don't log pings
-    if (strfind(tmp, "PING :") == 1)
+    if (strfind(tmp, "PING :") == 0)
     {
         logging = 0;
     }
@@ -907,6 +936,40 @@ int getIP(char *ip, char *nick, int sckt)
     return 0;
 }
 
+int checkPass(char *serverline)
+{
+    FILE *fd;
+    char line[MAX];
+    char c;
+    int i = 0;
+
+    memset(line, 0, MAX);
+
+    // open file
+    fd = fopen("passphrase", "r");
+    if (fd == NULL)
+        return -1;
+
+    while ((c = getc(fd)) != EOF)
+    {
+        if (c == '\n')
+        {
+            break;
+        }
+        else
+        {
+            line[i] = c;
+            i++;
+        }
+    }
+
+
+    // close file
+    fclose(fd);
+
+    return strfind(serverline, line);
+}
+
 int strfind(char *s1, char *s2)
 {
     int i;
@@ -920,14 +983,19 @@ int strfind(char *s1, char *s2)
     {
         /*if (strncmp(s1+i, s2, strlen(s2)) == 0)*/
         if (strncmp(s1+i, s2, strnlen(s2, MAX)) == 0)
-            return 1;
+        {
+            #ifdef DEBUG
+            logprint("end strfind()\n");
+            #endif
+            return 0;
+        }
     }
 
     #ifdef DEBUG
     logprint("end strfind()\n");
     #endif
 
-    return 0;
+    return -1;
 }
 
 int usernamecount(char *s)
@@ -944,10 +1012,10 @@ int usernamecount(char *s)
         /*if (strncmp(s+i, "!", strlen("!")) == 0)*/
         if (strncmp(s+i, "!", strnlen("!", MAX)) == 0)
         {
-            return i-1;
             #ifdef DEBUG
             logprint("end usernamecount()\n");
             #endif
+            return i-1;
         }
     }
     return -1;
@@ -964,12 +1032,12 @@ int strend(char *s0, char *s1)
         #ifdef DEBUG
         logprint("end strend()\n");
         #endif
-        return 1;
+        return 0;
     }
     #ifdef DEBUG
     logprint("end strend()\n");
     #endif
-    return 0;
+    return -1;
 }
 
 int getmsg(char *s, char *key)
