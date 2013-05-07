@@ -145,8 +145,9 @@ int loop(int sckt, char *nick, char *channel)
             {
                 #ifdef DEBUG
                 logprint("strfind !shutdown\n");
+                logprint("privatemsg() and disconnectirc()");
                 #endif
-                ret = 0;
+                disconnectirc(sckt); // ignore return value
                 break;
             }
             else if (strfind(serverline, "!ip") == 1)
@@ -223,9 +224,6 @@ int loop(int sckt, char *nick, char *channel)
             break;
         }
     }
-
-    privatemsg("I'll be back.", channel, sckt);
-    disconnectirc(sckt);
 
     #ifdef DEBUG
     logprint("end loop()\n");
@@ -412,22 +410,28 @@ int connectirc(char *server, char *port)
 
 int disconnectirc(int sckt)
 {
+    int ret;
+
     #ifdef DEBUG
     logprint("start disconnectirc()\n");
     #endif
-    quit("Terminated...", sckt);
+
+    ret = quit("Terminated...", sckt);
     logprint("disconnecting\n");
     sleep(1);
+
     #ifdef DEBUG
     logprint("trying to close socket\n");
     #endif
     if (close(sckt) == -1)
         errprint("close(sckt)\n");
     logprint("disconnected\n");
+
     #ifdef DEBUG
     logprint("end disconnectirc()\n");
     #endif
-    return 0;
+
+    return ret;
 }
 
 int loginpass(int sckt)
