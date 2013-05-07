@@ -18,8 +18,7 @@ Additionally, you'll need the following textfiles:
 * personal.txt: messages the bot will use when addressed personally
 * passphrase: contains the passphrase (for at least a bit of security)
 
-To shutdown the bot, use `/msg <nick> !shutdown <passphrase>`
-
+To shutdown the bot, use `/msg <nick> !shutdown <passphrase>`     
 To reconnect the bot, use `/msg <nick> !reconnect <passphrase>`
 
 To enable debug mode, use `make debug`
