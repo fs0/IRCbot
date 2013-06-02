@@ -917,16 +917,17 @@ int getIP(char *ip, char *nick, int sckt)
         return -1;
     }
 
-    if (readserver(ip, sckt, 1) == -1)
+    while (1 == 1)
     {
-        return -1;
-    }
-
-    memset(tmp, 0, MAX);
-
-    if (readserver(ip, sckt, 1) == -1)
-    {
-        return -1;
+        memset(ip, 0, MAX);
+        if (readserver(ip, sckt, 1) == -1)
+        {
+            return -1;
+        }
+        if (strfind(ip, "is connecting from") == 0)
+        {
+            break;
+        }
     }
 
     #ifdef DEBUG
