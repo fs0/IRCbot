@@ -372,10 +372,6 @@ int connectirc(char *server, char *port)
     if (getaddrinfo(server, port, &hints, &result) != 0)
     {
         errprint("getaddrinfo()\n");
-        #ifdef DEBUG
-        logprint("freeaddrinfo(result)\n");
-        #endif
-        freeaddrinfo(result);
         return -1;
     }
 
