@@ -811,6 +811,12 @@ int readserver(char *s, int sckt, int logging)
         return -1;
     }
 
+    if (strfind(tmp, "Closing Link") == 0)
+    {
+        errprint("Closing Link");
+        return -1;
+    }
+
     // don't log pings
     if (strfind(tmp, "PING :") == 0)
     {
