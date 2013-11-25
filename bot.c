@@ -943,7 +943,7 @@ int checkPass(char *serverline)
 {
     FILE *fd;
     char line[MAX];
-    char c;
+    int c;
     int i = 0;
 
     memset(line, 0, MAX);
@@ -1180,7 +1180,7 @@ int getLine(char *line, char *textfile)
     int numLines = 0;
     int currentLine = 0;
     int randnum;
-    char c;
+    int c;
     int i = 0;
 
     #ifdef DEBUG
