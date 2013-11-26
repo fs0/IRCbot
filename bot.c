@@ -183,7 +183,7 @@ int loop(int sckt, char *nick, char *channel)
                 
                 if (usernamecount(serverline) == -1) {
                     continue;
-				}
+                }
                 strncpy(tmp, serverline+1, usernamecount(serverline));
                 ret = privatemsg("No!", tmp, sckt);
             }
@@ -386,7 +386,7 @@ int disconnectirc(int sckt)
     #endif
     if (close(sckt) == -1) {
         errprint("close(sckt)\n");
-	}
+    }
     logprint("disconnected\n");
 
     #ifdef DEBUG
@@ -1027,9 +1027,9 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
         } else if (rc == 0) {
             if (n == 1) {
                 return (0);
-			} else {
+            } else {
                 break;
-			}
+            }
         } else if (errno != EINTR) {
             return -1;
         }
@@ -1060,12 +1060,12 @@ int getLine(char *line, char *textfile)
     fd = fopen(textfile, "r");
     if (fd == NULL) {
         return -1;
-	}
+    }
     // count lines
     while ((c = getc(fd)) != EOF) {
         if (c == '\n') {
             numLines++;
-		}
+        }
     }
     fseek(fd, 0, SEEK_SET);
 
@@ -1076,7 +1076,7 @@ int getLine(char *line, char *textfile)
         if (randnum > currentLine) {
             if (c == '\n') {
                 currentLine++;
-			}
+            }
         } else {
             if (c == '\n') {
                 break;
