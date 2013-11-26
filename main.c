@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
     logprint("start main()\n");
     #endif
 
-    if (argc != 5)
-    {
+    if (argc != 5) {
         printf("\nparameters: <server> <port> <nick> <channel>\n");
         printf("server: freenode server rotation is chat.freenode.net\n");
         printf("port: usually 6667\n");
@@ -22,30 +21,25 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    do
-    {
+    do {
         #ifdef DEBUG
         logprint("main(): connectirc()\n");
         #endif
         sckt = connectirc(argv[1], argv[2]);
 
-        if (sckt == -1)
-        {
+        if (sckt == -1) {
             #ifdef DEBUG
             logprint("socket == -1\n");
             #endif
             ret = -1;
-        }
-        else
-        {
+        } else {
             #ifdef DEBUG
             logprint("main(): init()\n");
             #endif
             ret = init(sckt, argv[3], "guest", "Name", argv[4]);
         }
 
-        if (ret == -1)
-        {
+        if (ret == -1) {
             #ifdef DEBUG
             logprint("ret == -1: sleep()\n");
             #endif
