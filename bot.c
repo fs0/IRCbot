@@ -23,8 +23,7 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
         #ifdef DEBUG
         logprint("trying to close socket\n");
         #endif
-        if (close(sckt) == -1) 
-        {
+        if (close(sckt) == -1) {
             errprint("close(sckt)\n");
         }
         return -1;
