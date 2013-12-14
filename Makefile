@@ -1,5 +1,5 @@
 CC=gcc
-OBJ=bot.o main.o
+OBJ=bot.o main.o util.o irc.o
 NAME=bot
 CFLAGS=-c
 
