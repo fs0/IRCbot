@@ -92,6 +92,11 @@ int loop(int sckt, char *nick, char *channel)
             logprint("strfind tome\n");
             #endif
             ret = answer(sckt, serverline, channel, nick);
+        } else if (strfind(serverline, ":!version") == 0) {
+            #ifdef DEBUG
+            logprint("strfind tome\n");
+            #endif
+            ret = privatemsg(VERSION, channel, sckt);
         } else if (strfind(serverline, privmsg) == 0) { /*private message*/
 
             #ifdef DEBUG
