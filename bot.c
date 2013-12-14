@@ -96,7 +96,9 @@ int loop(int sckt, char *nick, char *channel)
             #ifdef DEBUG
             logprint("strfind tome\n");
             #endif
-            ret = privatemsg(VERSION, channel, sckt);
+            memset(tmp, 0, MAX);
+            snprintf(tmp, MAX, "Version: %s", VERSION);
+            ret = privatemsg(tmp, channel, sckt);
         } else if (strfind(serverline, privmsg) == 0) { /*private message*/
 
             #ifdef DEBUG
