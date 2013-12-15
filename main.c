@@ -1,5 +1,7 @@
 #include "bot.h"
 
+extern int mute;
+
 int main(int argc, char *argv[])
 {
     int sckt;
@@ -9,16 +11,25 @@ int main(int argc, char *argv[])
     logprint("start main()\n");
     #endif
 
-    if (argc != 5) {
-        printf("\nparameters: <server> <port> <nick> <channel>\n");
-        printf("server: freenode server rotation is chat.freenode.net\n");
-        printf("port: usually 6667\n");
-        printf("Additionally, you'll need two textfiles:\n");
-        printf("  messages.txt: general messages\n");
-        printf("  personal.txt: messages the bot will use when addressed personally.\n");
-        printf("  passphrase: contains the passphrase.\n");
-        printf("NOTE: put a \\ before the # of the channelname\n\n");
+    if (argc < 5) {
+        printf("\n");
+        printf("  parameters: <server> <port> <nick> <channel> [<mute>]\n");
+        printf("  server: freenode server rotation is chat.freenode.net\n");
+        printf("  port: usually 6667\n");
+        printf("  mute: set this to non-zero to mute the bot (optional)\n");
+        printf("  Additionally, you'll need two textfiles:\n");
+        printf("    messages.txt: general messages\n");
+        printf("    personal.txt: messages the bot will use when addressed personally.\n");
+        printf("    passphrase: contains the passphrase.\n");
+        printf("  NOTE: put a \\ before the # of the channelname\n");
+        printf("\n");
         return -1;
+    }
+
+    if (argc == 6) {
+        mute = atoi(argv[5]); // set mute state
+    } else {
+        mute = 0;
     }
 
     do {

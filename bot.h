@@ -9,6 +9,8 @@
 
 #define VERSION "1.1"
 
+int mute;
+
 /* initialization
  * parameter sckt: socket
  * parameter nick: nick used by the bot

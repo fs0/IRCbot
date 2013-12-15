@@ -4,6 +4,8 @@
 /*TODO correct error handling*/
 /*TODO clean up string/message functions*/
 
+extern int mute;
+
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
     int ret = 0;
@@ -260,15 +262,19 @@ int privatemsg(char *msg, char *dest, int sckt)
     logprint("start privatemsg()\n");
     #endif
 
-    /*strcpy(tmp, "PRIVMSG ");*/
-    snprintf(tmp, MAX, "%s", "PRIVMSG ");
-    strncat(tmp, dest, MAX-strnlen(tmp, MAX)-1);
-    strncat(tmp, " :", MAX-strnlen(tmp, MAX)-1);
-    strncat(tmp, msg, MAX-strnlen(tmp, MAX)-1);
-    strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
+    if (!mute) {
+        #ifdef DEBUG
+        logprint("not muted\n");
+        #endif
+        snprintf(tmp, MAX, "%s", "PRIVMSG ");
+        strncat(tmp, dest, MAX-strnlen(tmp, MAX)-1);
+        strncat(tmp, " :", MAX-strnlen(tmp, MAX)-1);
+        strncat(tmp, msg, MAX-strnlen(tmp, MAX)-1);
+        strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt, 1) == -1) {
-        return -1;
+        if (writeserver(tmp, sckt, 1) == -1) {
+            return -1;
+        }
     }
 
     #ifdef DEBUG
