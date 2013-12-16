@@ -8,6 +8,8 @@
 #include "util.h"
 
 #define VERSION "1.1.2"
+#define PRIVATE 0
+#define OPEN    1
 
 int mute;
 
@@ -39,14 +41,13 @@ int loop(int sckt, char *nick, char *channel);
 int react (int sckt, char *nick, char *channel, char *serverline);
 
 /* get reply and store it in response
- * parameter sckt: connected socket
  * parameter serverline: received string
- * parameter dest: current channel
  * parameter nick: nick used by the bot
  * parameter response: string where response will be saved
+ * parameter openchannel: 1 - open channel; 0 - private chat
  * returns: 0 (always...)
  */
-int answer(int sckt, char *serverline, char *channel, char *nick, char *response);
+int answer(char *serverline, char *nick, char *response, int openchannel);
 
 /* send a message
  * parameter msg: message to send

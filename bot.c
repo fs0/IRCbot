@@ -101,16 +101,11 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         logprint("strfind PING\n");
         #endif
         ret = sendpong(sckt, serverline);
-    } else if (strfind(serverline, ":!info") == 0) {
-        #ifdef DEBUG
-        logprint("strfind !info\n");
-        #endif
-        ret = channelmsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
     } else if (strfind(serverline, tome) == 0) {
         #ifdef DEBUG
         logprint("strfind tome\n");
         #endif
-        answer(sckt, serverline, channel, nick, tmp); // screw return
+        answer(serverline, nick, tmp, OPEN); // screw return
         ret = channelmsg(tmp, channel, sckt);
     } else if (strfind(serverline, privmsg) == 0) { /*private message*/
 
@@ -195,7 +190,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             #ifdef DEBUG
             logprint("else block\n");
             #endif
-            answer(sckt, serverline, channel, nick, tmp);
+            answer(serverline, nick, tmp, PRIVATE);
             ret = privatemsg(tmp, serverline, sckt);
         }
     } else if ((getrand(20) == 0) && (strend(serverline, "?") == -1)) {
@@ -215,7 +210,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
 }
 
 // TODO errorhandling?
-int answer(int sckt, char *serverline, char *channel, char* nick, char *response)
+int answer(char *serverline, char* nick, char *response, int openchannel)
 {
     char textfileline[MAX];
     int ret = 0;
@@ -228,20 +223,24 @@ int answer(int sckt, char *serverline, char *channel, char* nick, char *response
     memset(textfileline, 0, MAX);
 
     if (strfind(serverline, ": hello") == 0 || strfind(serverline, ": Hello") == 0 || strfind(serverline, ": hi") == 0 || strfind(serverline, ": Hi") == 0) {
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
+        if (openchannel) {
+            if (usernamecount(serverline) == -1) {
+                // couldn't find username, continue
+                return 0;
+            }
+            strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+            strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         }
-        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
-        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         strncat(response, "Hello.", MAX-strnlen(response, MAX)-1);
     } else if (strend(serverline, "?") == 0 && yesnoq(serverline, nick) == 0) { /*yes no question?*/ 
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
+        if (openchannel) {
+            if (usernamecount(serverline) == -1) {
+                // couldn't find username, continue
+                return 0;
+            }
+            strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+            strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         }
-        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
-        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         switch(getrand(3)) {
             case 0:     strncat(response, "Yes.", MAX-strnlen(response, MAX)-1); break;
             case 1:     strncat(response, "No.", MAX-strnlen(response, MAX)-1); break;
@@ -249,12 +248,14 @@ int answer(int sckt, char *serverline, char *channel, char* nick, char *response
             default:    break;
         }
     } else {
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
+        if (openchannel) {
+            if (usernamecount(serverline) == -1) {
+                // couldn't find username, continue
+                return 0;
+            }
+            strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+            strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         }
-        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
-        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         if (getLine(textfileline, "./personal.txt") == -1) {
             errprint("getmsg()\n");
         } else {
