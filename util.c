@@ -131,6 +131,8 @@ int checkPass(char *serverline)
     return strfind(serverline, line);
 }
 
+// TODO improve
+// TODO look for ": " and " :"
 int yesnoq(char *s, char *nick)
 {
     char tmp[MAX];

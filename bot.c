@@ -1,9 +1,5 @@
 #include "bot.h"
 
-/*TODO regular expressions?*/
-/*TODO correct error handling*/
-/*TODO clean up string/message functions*/
-
 extern int mute;
 
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
