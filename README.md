@@ -5,7 +5,7 @@ Simple IRC Bot (not fully functional)
 
 Start the bot with:
   ```bash
-  $ ./bot <server> <port> <nick> <channel> [<mute>]
+  $ ./bot <server> <port> <nick> <channel> [mute]
   ```
 where 
 * server: address of the IRC server, e.g. irc.foonetic.net
