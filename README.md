@@ -21,5 +21,7 @@ Additionally, you'll need the following textfiles:
 
 To shutdown the bot, use `/msg <nick> !shutdown <passphrase>`     
 To reconnect the bot, use `/msg <nick> !reconnect <passphrase>` (note: Bot waits 2min before reconnecting (main.c))
+To mute the bot, use `/msg <nick> !mute <passphrase>`
+To unmute the bot, use `/msg <nick> !unmute <passphrase>`
 
 To enable debug mode, use `make debug`
