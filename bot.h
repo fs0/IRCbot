@@ -7,7 +7,7 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.1.1"
+#define VERSION "1.1.2"
 
 int mute;
 
@@ -40,11 +40,19 @@ int answer(int sckt, char *serverline, char *channel, char *nick);
 
 /* send a message
  * parameter msg: message to send
- * parameter dest: destination, e.g. channelname or username
+ * parameter serverline: received string
  * parameter sckt: connected socket
  * returns: 0 if successful, -1 else
  */
-int privatemsg(char *msg, char *dest, int sckt);
+int privatemsg(char *msg, char *serverline, int sckt);
+
+/* send a message
+ * parameter msg: message to send
+ * parameter channel: channelname
+ * parameter sckt: connected socket
+ * returns: 0 if successful, -1 else
+ */
+int channelmsg(char *msg, char *channel, int sckt);
 
 /* send IRC-command to server 
  * parameter s: serverline
