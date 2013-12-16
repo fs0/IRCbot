@@ -228,8 +228,20 @@ int answer(int sckt, char *serverline, char *channel, char* nick, char *response
     memset(textfileline, 0, MAX);
 
     if (strfind(serverline, ": hello") == 0 || strfind(serverline, ": Hello") == 0 || strfind(serverline, ": hi") == 0 || strfind(serverline, ": Hi") == 0) {
+        if (usernamecount(serverline) == -1) {
+            // couldn't find username, continue
+            return 0;
+        }
+        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         strncat(response, "Hello.", MAX-strnlen(response, MAX)-1);
     } else if (strend(serverline, "?") == 0 && yesnoq(serverline, nick) == 0) { /*yes no question?*/ 
+        if (usernamecount(serverline) == -1) {
+            // couldn't find username, continue
+            return 0;
+        }
+        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         switch(getrand(3)) {
             case 0:     strncat(response, "Yes.", MAX-strnlen(response, MAX)-1); break;
             case 1:     strncat(response, "No.", MAX-strnlen(response, MAX)-1); break;
@@ -237,6 +249,12 @@ int answer(int sckt, char *serverline, char *channel, char* nick, char *response
             default:    break;
         }
     } else {
+        if (usernamecount(serverline) == -1) {
+            // couldn't find username, continue
+            return 0;
+        }
+        strncpy(response, serverline+1, (size_t)usernamecount(serverline));
+        strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         if (getLine(textfileline, "./personal.txt") == -1) {
             errprint("getmsg()\n");
         } else {
