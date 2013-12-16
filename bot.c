@@ -154,6 +154,26 @@ int loop(int sckt, char *nick, char *channel)
                     strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
                     ret = privatemsg("No!", tmp2, sckt);
                 }
+            } else if (strfind(serverline, "!mute") == 0) {
+                #ifdef DEBUG
+                logprint("strfind !mute");
+                #endif
+
+                if (checkPass(serverline) == 0) {
+                    mute = 1;
+                    strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
+                    ret = privatemsg("Muted.", tmp2, sckt);
+                }
+            } else if (strfind(serverline, "!unmute") == 0) {
+                #ifdef DEBUG
+                logprint("strfind !unmute");
+                #endif
+
+                if (checkPass(serverline) == 0) {
+                    mute = 0;
+                    strncpy(tmp2, serverline+1, (size_t)usernamecount(serverline));
+                    ret = privatemsg("Unmuted.", tmp2, sckt);
+                }
             } else {
                 #ifdef DEBUG
                 logprint("else block\n");
