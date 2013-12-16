@@ -41,158 +41,28 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
 int loop(int sckt, char *nick, char *channel)
 {
     char serverline[MAX];
-    char privmsg[MAX];
-    char tmp[MAX];
-    char tmp2[MAX];
-    char tome[MAX];
     int ret = 0;
 
     #ifdef DEBUG
     logprint("start loop()\n");
     #endif
 
-    /*private message to the bot*/
-    /*strcpy(privmsg, "PRIVMSG ");*/
-    snprintf(privmsg, MAX, "%s", "PRIVMSG ");
-    strncat(privmsg, nick, MAX-strnlen(privmsg, MAX)-1);
-
-    /*message to the bot*/
-    /*strcpy(tome, "PRIVMSG ");*/
-    snprintf(tome, MAX, "%s", "PRIVMSG ");
-    strncat(tome, channel, MAX-strnlen(tome, MAX)-1);
-    strncat(tome, " :", MAX-strnlen(tome, MAX)-1);
-    strncat(tome, nick, MAX-strnlen(tome, MAX)-1);
-
     while (1==1) {
 
         memset(serverline, 0, MAX);
 
-        if (readserver(serverline, sckt, 1) == -1) {
-            //return -1;
-            ret = -1;
-        }
-        
-        if (strfind(serverline, "PING :") == 0) {
-            #ifdef DEBUG
-            logprint("strfind PING\n");
-            #endif
-            ret = sendpong(sckt, serverline);
-        } else if (strfind(serverline, ":!os") == 0) {
-            #ifdef DEBUG
-            logprint("strfind !os\n");
-            #endif
-            memset(tmp, 0, MAX);
-            osinfo(tmp);
-            ret = channelmsg(tmp, channel, sckt);
-        } else if (strfind(serverline, ":!info") == 0) {
-            #ifdef DEBUG
-            logprint("strfind !info\n");
-            #endif
-            ret = channelmsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
-        } else if (strfind(serverline, tome) == 0) {
-            #ifdef DEBUG
-            logprint("strfind tome\n");
-            #endif
-            ret = answer(sckt, serverline, channel, nick);
-        } else if (strfind(serverline, ":!version") == 0) {
-            #ifdef DEBUG
-            logprint("strfind tome\n");
-            #endif
-            memset(tmp, 0, MAX);
-            snprintf(tmp, MAX, "Version: %s", VERSION);
-            ret = channelmsg(tmp, channel, sckt);
-        } else if (strfind(serverline, privmsg) == 0) { /*private message*/
-
-            #ifdef DEBUG
-            logprint("strfind privmsg\n");
-            #endif
-
-            memset(tmp, 0, MAX);
-            memset(tmp2, 0, MAX);
-
-            if (strfind(serverline, ":!shutdown") == 0) { /*disconnect the bot*/
-                #ifdef DEBUG
-                logprint("strfind !shutdown\n");
-                #endif
-
-                if (checkPass(serverline) == 0) {
-                    disconnectirc(sckt); // ignore return value
-                    ret = 0;
-                    break;
-                } else {
-                    ret = privatemsg("No!", serverline, sckt);
-                }
-            } else if (strfind(serverline, ":!reconnect") == 0) { /*disconnect/reconnect*/
-                #ifdef DEBUG
-                logprint("strfind !reconnect\n");
-                #endif
-
-                if (checkPass(serverline) == 0) {
-                    disconnectirc(sckt);
-                    ret = -1;
-                    break;
-                } else {
-                    ret = privatemsg("No!", serverline, sckt);
-                }
-            } else if (strfind(serverline, ":!ip") == 0) {
-                #ifdef DEBUG
-                logprint("strfind !ip\n");
-                #endif
-
-                if (checkPass(serverline) == 0) {
-                    if (getIP(tmp, nick, sckt) == -1) {
-                        errprint("getIP()\n");
-                        ret = -1;
-                    } else {
-                        ret = privatemsg(tmp, serverline, sckt);
-                    }
-                } else {
-                    ret = privatemsg("No!", serverline, sckt);
-                }
-            } else if (strfind(serverline, "!mute") == 0) {
-                #ifdef DEBUG
-                logprint("strfind !mute");
-                #endif
-
-                if (checkPass(serverline) == 0) {
-                    mute = 1;
-                    ret = privatemsg("Muted.", serverline, sckt);
-                } else {
-                    ret = privatemsg("No!", serverline, sckt);
-                }
-            } else if (strfind(serverline, "!unmute") == 0) {
-                #ifdef DEBUG
-                logprint("strfind !unmute");
-                #endif
-
-                if (checkPass(serverline) == 0) {
-                    mute = 0;
-                    ret = privatemsg("Unmuted.", serverline, sckt);
-                } else {
-                    ret = privatemsg("No!", serverline, sckt);
-                }
-            } else {
-                #ifdef DEBUG
-                logprint("else block\n");
-                #endif
-                ret = privatemsg("No!", serverline, sckt);
-            }
-        } else if ((getrand(20) == 0) && (strend(serverline, "?") == -1)) {
-            #ifdef DEBUG
-            logprint("rand == 0 && strend not ?\n");
-            #endif
-            memset(tmp, 0, MAX);
-            if (getLine(tmp, "./messages.txt") == -1) {
-                errprint("getmsg()\n");
-                ret = -1;
-            } else {
-                ret = channelmsg(tmp, channel, sckt);
-            }
+        if ( (ret = readserver(serverline, sckt, 1)) != -1) {
+            ret = react(sckt, nick, channel, serverline);
         }
         
         if (ret == -1) {
             #ifdef DEBUG
             logprint("ret == -1 at end of loop()\n");
+            #endif
+            break;
+        } else if (ret == 1) {
+            #ifdef DEBUG
+            logprint("ret == 1 at end of loop");
             #endif
             break;
         }
@@ -205,9 +75,148 @@ int loop(int sckt, char *nick, char *channel)
     return ret;
 }
 
-int answer(int sckt, char *serverline, char *channel, char* nick)
+int react (int sckt, char *nick, char *channel, char *serverline)
 {
+    char privmsg[MAX];
     char tmp[MAX];
+    char tome[MAX];
+    int ret = 0;
+
+    memset(privmsg, 0, MAX);
+    memset(tmp, 0, MAX);
+    memset(tome, 0, MAX);
+
+    /*private message to the bot*/
+    snprintf(privmsg, MAX, "%s", "PRIVMSG ");
+    strncat(privmsg, nick, MAX-strnlen(privmsg, MAX)-1);
+
+    /*message to the bot*/
+    snprintf(tome, MAX, "%s", "PRIVMSG ");
+    strncat(tome, channel, MAX-strnlen(tome, MAX)-1);
+    strncat(tome, " :", MAX-strnlen(tome, MAX)-1);
+    strncat(tome, nick, MAX-strnlen(tome, MAX)-1);
+
+    if (strfind(serverline, "PING :") == 0) {
+        #ifdef DEBUG
+        logprint("strfind PING\n");
+        #endif
+        ret = sendpong(sckt, serverline);
+    } else if (strfind(serverline, ":!info") == 0) {
+        #ifdef DEBUG
+        logprint("strfind !info\n");
+        #endif
+        ret = channelmsg("I'm a cybernetic organism. Living tissue over a metal endoskeleton.", channel, sckt);
+    } else if (strfind(serverline, tome) == 0) {
+        #ifdef DEBUG
+        logprint("strfind tome\n");
+        #endif
+        answer(sckt, serverline, channel, nick, tmp); // screw return
+        ret = channelmsg(tmp, channel, sckt);
+    } else if (strfind(serverline, privmsg) == 0) { /*private message*/
+
+        #ifdef DEBUG
+        logprint("strfind privmsg\n");
+        #endif
+
+        if (strfind(serverline, ":!shutdown") == 0) { /*disconnect the bot*/
+            #ifdef DEBUG
+            logprint("strfind !shutdown\n");
+            #endif
+
+            if (checkPass(serverline) == 0) {
+                disconnectirc(sckt); // ignore return value
+                ret = 1;
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+        } else if (strfind(serverline, ":!reconnect") == 0) { /*disconnect/reconnect*/
+            #ifdef DEBUG
+            logprint("strfind !reconnect\n");
+            #endif
+
+            if (checkPass(serverline) == 0) {
+                disconnectirc(sckt);
+                ret = -1;
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+        } else if (strfind(serverline, ":!ip") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !ip\n");
+            #endif
+
+            if (checkPass(serverline) == 0) {
+                if (getIP(tmp, nick, sckt) == -1) {
+                    errprint("getIP()\n");
+                    ret = -1;
+                } else {
+                    ret = privatemsg(tmp, serverline, sckt);
+                }
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+        } else if (strfind(serverline, "!mute") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !mute");
+            #endif
+
+            if (checkPass(serverline) == 0) {
+                mute = 1;
+                ret = privatemsg("Muted.", serverline, sckt);
+            } else {
+                ret = privatemsg("You mute!", serverline, sckt);
+            }
+        } else if (strfind(serverline, "!unmute") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !unmute");
+            #endif
+
+            if (checkPass(serverline) == 0) {
+                mute = 0;
+                ret = privatemsg("Unmuted.", serverline, sckt);
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+        } else if (strfind(serverline, ":!os") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !os\n");
+            #endif
+            memset(tmp, 0, MAX);
+            osinfo(tmp);
+            ret = privatemsg(tmp, serverline, sckt);
+        } else if (strfind(serverline, ":!version") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !version\n");
+            #endif
+            memset(tmp, 0, MAX);
+            snprintf(tmp, MAX, "Version: %s", VERSION);
+            ret = privatemsg(tmp, serverline, sckt);
+        } else {
+            #ifdef DEBUG
+            logprint("else block\n");
+            #endif
+            answer(sckt, serverline, channel, nick, tmp);
+            ret = privatemsg(tmp, serverline, sckt);
+        }
+    } else if ((getrand(20) == 0) && (strend(serverline, "?") == -1)) {
+        #ifdef DEBUG
+        logprint("rand == 0 && strend not ?\n");
+        #endif
+        memset(tmp, 0, MAX);
+        if (getLine(tmp, "./messages.txt") == -1) {
+            errprint("getmsg()\n");
+            ret = -1;
+        } else {
+            ret = channelmsg(tmp, channel, sckt);
+        }
+    }
+    
+    return ret;
+}
+
+// TODO errorhandling?
+int answer(int sckt, char *serverline, char *channel, char* nick, char *response)
+{
     char textfileline[MAX];
     int ret = 0;
 
@@ -215,47 +224,23 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     logprint("start answer()\n");
     #endif
 
+    memset(response, 0, MAX);
+    memset(textfileline, 0, MAX);
+
     if (strfind(serverline, ": hello") == 0 || strfind(serverline, ": Hello") == 0 || strfind(serverline, ": hi") == 0 || strfind(serverline, ": Hi") == 0) {
-        memset(tmp, 0, MAX);
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
-        }
-        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
-        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
-        strncat(tmp, "Hello.", MAX-strnlen(tmp, MAX)-1);
-        ret = channelmsg(tmp , channel, sckt);
+        strncat(response, "Hello.", MAX-strnlen(response, MAX)-1);
     } else if (strend(serverline, "?") == 0 && yesnoq(serverline, nick) == 0) { /*yes no question?*/ 
-        memset(tmp, 0, MAX);
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
-        }
-        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
-        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
         switch(getrand(3)) {
-            case 0:    strncat(tmp, "Yes.", MAX-strnlen(tmp, MAX)-1); break;
-            case 1:    strncat(tmp, "No.", MAX-strnlen(tmp, MAX)-1); break;
-            case 2:    strncat(tmp, "Of course. I'm a terminator. ", MAX-strnlen(tmp, MAX)-1); break;
-            default: break;
+            case 0:     strncat(response, "Yes.", MAX-strnlen(response, MAX)-1); break;
+            case 1:     strncat(response, "No.", MAX-strnlen(response, MAX)-1); break;
+            case 2:     strncat(response, "Of course. I'm a terminator.", MAX-strnlen(response, MAX)-1); break;
+            default:    break;
         }
-        ret = channelmsg(tmp , channel, sckt);
     } else {
-        memset(tmp, 0, MAX);
-        memset(textfileline, 0, MAX);
-
-        if (usernamecount(serverline) == -1) {
-            // couldn't find username, continue
-            return 0;
-        }
-        strncpy(tmp, serverline+1, (size_t)usernamecount(serverline));
-        strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
-
         if (getLine(textfileline, "./personal.txt") == -1) {
             errprint("getmsg()\n");
         } else {
-            strncat(tmp, textfileline, MAX-strnlen(tmp, MAX)-1);
-            ret = channelmsg(tmp , channel, sckt);
+            strncat(response, textfileline, MAX-strnlen(response, MAX)-1);
         }
     }
 
@@ -263,7 +248,7 @@ int answer(int sckt, char *serverline, char *channel, char* nick)
     logprint("end answer()\n");
     #endif
 
-    return ret;
+    return 0;
 }
 
 int privatemsg(char *msg, char *serverline, int sckt)
@@ -320,6 +305,10 @@ int channelmsg(char *msg, char *channel, int sckt)
         if (writeserver(send, sckt, 1) == -1) {
             return -1;
         }
+    } else {
+        #ifdef DEBUG
+        logprint("muted\n");
+        #endif
     }
 
     #ifdef DEBUG

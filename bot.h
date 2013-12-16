@@ -29,14 +29,24 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel);
  */
 int loop(int sckt, char *nick, char *channel);
 
-/* reply to message
+/* scan serverline
+ * parameter sckt: connected socket
+ * parameter nick: nick used by the bot
+ * parameter channel: current channel
+ * parameter serverline: received string
+ * returns: 0 if successful, 1 to break out of loop(), -1 else
+ */
+int react (int sckt, char *nick, char *channel, char *serverline);
+
+/* get reply and store it in response
  * parameter sckt: connected socket
  * parameter serverline: received string
- * parameter channel: current channel
+ * parameter dest: current channel
  * parameter nick: nick used by the bot
- * returns: 0 if successful (even if no username found), -1 else
+ * parameter response: string where response will be saved
+ * returns: 0 (always...)
  */
-int answer(int sckt, char *serverline, char *channel, char *nick);
+int answer(int sckt, char *serverline, char *channel, char *nick, char *response);
 
 /* send a message
  * parameter msg: message to send
