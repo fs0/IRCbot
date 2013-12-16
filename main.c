@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     if (argc < 5) {
         printf("\n");
-        printf("  parameters: <server> <port> <nick> <channel> [<mute>]\n");
+        printf("  parameters: <server> <port> <nick> <channel> [mute]\n");
         printf("  server: freenode server rotation is chat.freenode.net\n");
         printf("  port: usually 6667\n");
         printf("  mute: set this to non-zero to mute the bot (optional)\n");

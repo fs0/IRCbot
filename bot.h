@@ -7,7 +7,7 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.1"
+#define VERSION "1.1.1"
 
 int mute;
 
