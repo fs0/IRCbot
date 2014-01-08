@@ -12,7 +12,8 @@ int connectirc(char *server, char *port)
     #endif
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC; // allow ipv4 or ipv6
+    //hints.ai_family = AF_UNSPEC; // allow ipv4 or ipv6
+    hints.ai_family = AF_INET; // allow ipv4
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
     hints.ai_protocol = 0; // any protocol
