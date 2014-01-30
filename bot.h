@@ -12,6 +12,7 @@
 #define OPEN    1
 
 int mute;
+int ghcistate;
 
 /* initialization
  * parameter sckt: socket

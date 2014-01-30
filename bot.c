@@ -1,6 +1,7 @@
 #include "bot.h"
 
 extern int mute;
+extern int ghcistate;
 
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
@@ -97,6 +98,14 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         logprint("strfind PING\n");
         #endif
         ret = sendpong(sckt, serverline);
+    } else if (strfind(serverline, "!ghci") == 0) {
+        if (getmsg(serverline, "!ghci") == -1) {
+            // ignore
+        }
+        if (ghcistate) {
+            ghci(serverline, tmp);
+            ret = channelmsg(tmp, channel, sckt);
+        }
     } else if (strfind(serverline, tome) == 0) {
         #ifdef DEBUG
         logprint("strfind tome\n");
@@ -168,6 +177,26 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+        } else if (strfind(serverline, "!enableghci") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !enableghci")
+            #endif
+            if (checkPass(serverline) == 0) {
+                ghcistate = 1;
+                ret = privatemsg("ghci enabled", serverline, sckt);
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+        } else if (strfind(serverline, "!disableghci") == 0) {
+            #ifdef DEBUG
+            logprint("strfind !disableghci")
+            #endif
+            if (checkPass(serverline) == 0) {
+                ghcistate = 0;
+                ret = privatemsg("ghci disabled", serverline, sckt);
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
         } else if (strfind(serverline, ":!os") == 0) {
             #ifdef DEBUG
             logprint("strfind !os\n");
@@ -194,7 +223,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         logprint("rand == 0 && strend not ?\n");
         #endif
         memset(tmp, 0, MAX);
-        if (getLine(tmp, "./messages.txt") == -1) {
+        if (getRandomLine(tmp, "./messages.txt") == -1) {
             errprint("getmsg()\n");
             ret = -1;
         } else {
@@ -252,7 +281,7 @@ int answer(char *serverline, char* nick, char *response, int openchannel)
             strncpy(response, serverline+1, (size_t)usernamecount(serverline));
             strncat(response, ": ", MAX-strnlen(response, MAX)-1);
         }
-        if (getLine(textfileline, "./personal.txt") == -1) {
+        if (getRandomLine(textfileline, "./personal.txt") == -1) {
             errprint("getmsg()\n");
         } else {
             strncat(response, textfileline, MAX-strnlen(response, MAX)-1);

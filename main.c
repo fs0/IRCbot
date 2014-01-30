@@ -32,6 +32,9 @@ int main(int argc, char *argv[])
         mute = 0;
     }
 
+    // disable ghci
+    ghcistate = 0;
+
     do {
         #ifdef DEBUG
         logprint("main(): connectirc()\n");

@@ -340,7 +340,7 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
     return n;
 }
 
-int getLine(char *line, char *textfile)
+int getRandomLine(char *line, char *textfile)
 {
     FILE *fd;
     int numLines = 0;
@@ -350,7 +350,7 @@ int getLine(char *line, char *textfile)
     int i = 0;
 
     #ifdef DEBUG
-    logprint("start getLine()\n");
+    logprint("start getRandomLine()\n");
     #endif
 
     // open file
@@ -389,8 +389,46 @@ int getLine(char *line, char *textfile)
     fclose(fd);
 
     #ifdef DEBUG
-    logprint("end getLine()\n");
+    logprint("end getRandomLine()\n");
     #endif
+
+    return 0;
+}
+
+int ghci(char *hs, char *ret)
+{
+    char cmd[MAX];
+    FILE *result;
+    int c;
+    int i = 0;
+
+    memset(ret, 0, MAX);
+    
+    // write command to ret
+    snprintf(ret, MAX, "%s", "echo \"");
+    strncat(ret, hs, MAX-strnlen(ret, MAX)-1);
+    strncat(ret, "\" | ghci | tail -n 2 | head -n 1 | sed s/Prelude\\>\\ //g > ghci.txt", MAX-strnlen(ret, MAX)-1);
+
+    // execute command
+    system(ret);
+
+    // reset ret
+    memset(ret, 0, MAX);
+
+    // open file
+    result = fopen("./ghci.txt", "r");
+    if (result == NULL) {
+        return -1;
+    }
+
+    // read first line, save to ret
+    while ((c = getc(result)) != '\n') {
+        ret[i] = c;
+        i++;
+    }
+
+    // close file
+    fclose(result);
 
     return 0;
 }

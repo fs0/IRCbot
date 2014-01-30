@@ -87,6 +87,13 @@ ssize_t readline(int fd, void *vptr, size_t maxlen);
  * parameter textfile: name of file
  * returns 0 if successful, -1 else
  */
-int getLine(char *line, char *textfile);
+int getRandomLine(char *line, char *textfile);
+
+/* execute cmd with ghci, save result to ret
+ * parameter cmd: haskell line
+ * parameter ret: result
+ * returns 0 if successful, -1 else
+ */
+int ghci(char *cmd, char *ret);
 
 #endif
