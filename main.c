@@ -14,16 +14,14 @@ int main(int argc, char *argv[])
     if (argc < 5) {
         printf("\n");
         printf("  parameters: <server> <port> <nick> <channel> [mute]\n");
-        printf("  server: freenode server rotation is chat.freenode.net\n");
-        printf("  port: usually 6667\n");
-        printf("  mute: set this to non-zero to mute the bot (optional)\n");
-        printf("  Additionally, you'll need two textfiles:\n");
-        printf("    messages.txt: general messages\n");
-        printf("    personal.txt: messages the bot will use when addressed personally.\n");
-        printf("    passphrase: contains the passphrase.\n");
-        printf("  NOTE: put a \\ before the # of the channelname\n");
         printf("\n");
-        return -1;
+        printf("  server:  freenode server rotation is chat.freenode.net\n");
+        printf("  port:    usually 6667\n");
+        printf("  nick:    nickname\n");
+        printf("  channel: channelname (put a \\ before the #)\n");
+        printf("  mute:    set this to non-zero to mute the bot (optional)\n");
+        printf("\n");
+        return 0;
     }
 
     if (argc == 6) {
@@ -31,9 +29,6 @@ int main(int argc, char *argv[])
     } else {
         mute = 0;
     }
-
-    // disable ghci
-    ghcistate = 0;
 
     do {
         #ifdef DEBUG

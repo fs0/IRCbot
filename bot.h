@@ -7,12 +7,9 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.1.2"
-#define PRIVATE 0
-#define OPEN    1
+#define VERSION "1.2"
 
 int mute;
-int ghcistate;
 
 /* initialization
  * parameter sckt: socket
@@ -41,15 +38,6 @@ int loop(int sckt, char *nick, char *channel);
  */
 int react (int sckt, char *nick, char *channel, char *serverline);
 
-/* get reply and store it in response
- * parameter serverline: received string
- * parameter nick: nick used by the bot
- * parameter response: string where response will be saved
- * parameter openchannel: 1 - open channel; 0 - private chat
- * returns: 0 (always...)
- */
-int answer(char *serverline, char *nick, char *response, int openchannel);
-
 /* send a message
  * parameter msg: message to send
  * parameter serverline: received string
@@ -57,14 +45,6 @@ int answer(char *serverline, char *nick, char *response, int openchannel);
  * returns: 0 if successful, -1 else
  */
 int privatemsg(char *msg, char *serverline, int sckt);
-
-/* send a message
- * parameter msg: message to send
- * parameter channel: channelname
- * parameter sckt: connected socket
- * returns: 0 if successful, -1 else
- */
-int channelmsg(char *msg, char *channel, int sckt);
 
 /* send IRC-command to server 
  * parameter s: serverline

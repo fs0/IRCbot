@@ -63,18 +63,16 @@ int sendpong(int sckt, char *s);
 /* read from server
  * parameter s: string where the text of the server will be saved
  * parameter sckt: connected socket
- * parameter logging: only write to log if logging==1
  * returns: 0 if successful, -1 else
  */
-int readserver(char *s, int sckt, int logging);
+int readserver(char *s, int sckt);
 
 /* send string to server
  * parameter s: command
  * parameter sckt: connected socket
- * parameter logging: only write to log if logging==1
  * returns: 0 if successful, -1 else
  */
-int writeserver(char *s, int sckt, int logging);
+int writeserver(char *s, int sckt);
 
 /* send QUIT command, disconnect from server
  * parameter msg: quit message

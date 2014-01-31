@@ -101,7 +101,6 @@ int disconnectirc(int sckt)
     #endif
 
     ret = quit("Terminated...", sckt);
-    logprint("disconnecting\n");
     sleep(1);
 
     #ifdef DEBUG
@@ -110,7 +109,6 @@ int disconnectirc(int sckt)
     if (close(sckt) == -1) {
         errprint("close(sckt)\n");
     }
-    logprint("disconnected\n");
 
     #ifdef DEBUG
     logprint("end disconnectirc()\n");
@@ -128,7 +126,7 @@ int loginpass(int sckt)
     char tmp[MAX];
     snprintf(tmp, MAX, "%s", "PASS drowssap\r\n");
 
-    if (writeserver(tmp, sckt, 1) == -1) {
+    if (writeserver(tmp, sckt) == -1) {
         return -1;
     }
 
@@ -151,7 +149,7 @@ int setnick(char *nick, int sckt)
     strncat(tmp, nick, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt, 1) == -1) {
+    if (writeserver(tmp, sckt) == -1) {
         return -1;
     }
 
@@ -177,7 +175,7 @@ int setuser(char *username, char *realname, int sckt)
     strncat(tmp, realname, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt, 1) == -1 ) {
+    if (writeserver(tmp, sckt) == -1 ) {
         return -1;
     }
 
@@ -200,13 +198,13 @@ int waitForResponse(int sckt)
 
         memset(serverline, 0, MAX);
 
-        if (readserver(serverline, sckt, 1) == -1) {
+        if (readserver(serverline, sckt) == -1) {
             return -1;
         }
 
-        if (strfind(serverline, ":End of /MOTD") == 0) {
+        if (strfind(serverline, ":End of /MOTD")) {
             return 0;
-        } else if (strfind(serverline, "PING :") == 0) {
+        } else if (strfind(serverline, "PING :")) {
             if (sendpong(sckt, serverline) == -1) {
                 return -1;
             }
@@ -232,7 +230,7 @@ int joinchannel(char *channel, int sckt)
     strncat(tmp, channel, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt, 1) == -1) {
+    if (writeserver(tmp, sckt) == -1) {
         return -1;
     }
 
@@ -264,7 +262,7 @@ int sendpong(int sckt, char *s)
         snprintf(tmp2, MAX, "%s", "PONG");
     }
 
-    if (writeserver(tmp2, sckt, 0) == -1) {
+    if (writeserver(tmp2, sckt) == -1) {
         return -1;
     }
 
@@ -275,39 +273,25 @@ int sendpong(int sckt, char *s)
     return 0;
 }
 
-int readserver(char *s, int sckt, int logging)
+int readserver(char *s, int sckt)
 {
     char tmp[MAX];
-    FILE *log;
 
     #ifdef DEBUG
     logprint("start readserver()\n");
     #endif
-
-    log = fopen("./bot.log", "a");
 
     if (readline(sckt, tmp, sizeof(tmp)) == -1) {
         errprint("readserver()\n");
         return -1;
     }
 
-    if (strfind(tmp, "Closing Link") == 0) {
+    if (strfind(tmp, "Closing Link")) {
         errprint("Closing Link");
         return -1;
     }
 
-    // don't log pings
-    if (strfind(tmp, "PING :") == 0) {
-        logging = 0;
-    }
-    
-    if (logging == 1) {
-        fprintf(log, "%s", tmp);
-    }
-
-    /*strcpy(s, tmp);*/
     snprintf(s, MAX, "%s", tmp);
-    fclose(log);
 
     #ifdef DEBUG
     logprint("readserver: ");
@@ -321,27 +305,20 @@ int readserver(char *s, int sckt, int logging)
     return 0;
 }
 
-int writeserver(char *s, int sckt, int logging)
+int writeserver(char *s, int sckt)
 {
-    FILE *log;
-
     #ifdef DEBUG
     logprint("start writeserver()\n");
     #endif
-
-    log = fopen("./bot.log", "a");
 
     /*if (write(sckt, s, strlen(s)) == -1)*/
     if (write(sckt, s, strnlen(s, MAX)) == -1) {
         errprint("writeserver()\n");
         return -1;
     }
-    if (logging == 1) {
-        fprintf(log, "%s", s);
-    }
-    fclose(log);
 
     #ifdef DEBUG
+    logprint(s);
     logprint("end writeserver()\n");
     #endif
 
@@ -361,7 +338,7 @@ int quit(char *msg, int sckt)
     strncat(tmp, msg, MAX-strnlen(tmp, MAX)-1);
     strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
 
-    if (writeserver(tmp, sckt, 1) == -1) {
+    if (writeserver(tmp, sckt) == -1) {
         return -1;
     }
 

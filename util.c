@@ -3,7 +3,7 @@
 void logprint(char *s)
 {
     FILE *log;
-    log = fopen("./bot.log", "a");
+    log = fopen(LOG, "a");
     fprintf(log, "%s", s);
     fclose(log);
 }
@@ -27,34 +27,19 @@ int strfind(char *s1, char *s2)
     for (i=0; i<strnlen(s1, MAX); i++) {
         if (strncmp(s1+i, s2, strnlen(s2, MAX)) == 0) {
             #ifdef DEBUG
+            logprint("string found\n");
             logprint("end strfind()\n");
             #endif
-            return 0;
+            return 1; // s2 in s1
         }
     }
 
     #ifdef DEBUG
+    logprint("string not found\n");
     logprint("end strfind()\n");
     #endif
 
-    return -1;
-}
-
-int strend(char *s0, char *s1)
-{
-    #ifdef DEBUG
-    logprint("start strend()\n");
-    #endif
-    if (strncmp(s0+strnlen(s0, MAX)-3, s1, strnlen(s1, MAX)) == 0) {
-        #ifdef DEBUG
-        logprint("end strend()\n");
-        #endif
-        return 0;
-    }
-    #ifdef DEBUG
-    logprint("end strend()\n");
-    #endif
-    return -1;
+    return 0; // s2 not in s1
 }
 
 int getmsg(char *s, char *key)
@@ -109,12 +94,21 @@ int checkPass(char *serverline)
     int c;
     int i = 0;
 
+    #ifdef DEBUG
+    logprint("start checkPass()\n");
+    #endif
+
     memset(line, 0, MAX);
 
     // open file
     fd = fopen("passphrase", "r");
-    if (fd == NULL)
-        return -1;
+    if (fd == NULL) {
+        #ifdef DEBUG
+        logprint("no passphrase file\n");
+        logprint("end checkPass()\n");
+        #endif
+        return 0; // no passphrase file -> deny
+    }
 
     while ((c = getc(fd)) != EOF) {
         if (c == '\n') {
@@ -124,117 +118,20 @@ int checkPass(char *serverline)
             i++;
         }
     }
+    #ifdef DEBUG
+    logprint("pass: ");
+    logprint(line);
+    logprint("\n");
+    #endif
 
     // close file
     fclose(fd);
 
+    #ifdef DEBUG
+    logprint("end checkPass()\n");
+    #endif
+
     return strfind(serverline, line);
-}
-
-// TODO improve
-// TODO look for ": " and " :"
-int yesnoq(char *s, char *nick)
-{
-    char tmp[MAX];
-    char tmp2[MAX];
-
-    #ifdef DEBUG
-    logprint("start yesnoq()\n");
-    #endif
-
-    /*strcpy(tmp, nick);*/
-    snprintf(tmp, MAX, "%s", nick);
-    strncat(tmp, ": ", MAX-strnlen(tmp, MAX)-1);
-
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "Why", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "why", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "What", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "what", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "Who", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "who", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "When", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "when", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "Where", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "where", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "How", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-        
-    /*strcpy(tmp2, tmp);*/
-    snprintf(tmp2, MAX, "%s", tmp);
-    strncat(tmp2, "how", MAX-strnlen(tmp2, MAX)-1);
-    if (strfind(s, tmp2) == 0) {
-        return -1;
-    }
-
-    #ifdef DEBUG
-    logprint("end yesnoq()\n");
-    #endif
-
-    return 0;
 }
 
 int osinfo(char *info)
@@ -289,7 +186,7 @@ int getrand(int a)
     */
 
     #ifdef DEBUG
-    log = fopen("./bot.log", "a");
+    log = fopen(LOG, "a");
     fprintf(log, "random number generated: %d\n", random);
     fclose(log);
     #endif
@@ -338,97 +235,4 @@ ssize_t readline(int fd, void *vptr, size_t maxlen)
     #endif
 
     return n;
-}
-
-int getRandomLine(char *line, char *textfile)
-{
-    FILE *fd;
-    int numLines = 0;
-    int currentLine = 0;
-    int randnum;
-    int c;
-    int i = 0;
-
-    #ifdef DEBUG
-    logprint("start getRandomLine()\n");
-    #endif
-
-    // open file
-    fd = fopen(textfile, "r");
-    if (fd == NULL) {
-        return -1;
-    }
-    // count lines
-    while ((c = getc(fd)) != EOF) {
-        if (c == '\n') {
-            numLines++;
-        }
-    }
-    fseek(fd, 0, SEEK_SET);
-
-    // generate random number
-    randnum = getrand(numLines);
-    // get the <randnum>th line
-    while ((c = getc(fd)) != EOF) {
-        if (randnum > currentLine) {
-            if (c == '\n') {
-                currentLine++;
-            }
-        } else {
-            if (c == '\n') {
-                break;
-            } else {
-                line[i] = c;
-                i++;
-            }
-        }
-        
-    }
-
-    // close file
-    fclose(fd);
-
-    #ifdef DEBUG
-    logprint("end getRandomLine()\n");
-    #endif
-
-    return 0;
-}
-
-int ghci(char *hs, char *ret)
-{
-    char cmd[MAX];
-    FILE *result;
-    int c;
-    int i = 0;
-
-    memset(ret, 0, MAX);
-    
-    // write command to ret
-    snprintf(ret, MAX, "%s", "echo \"");
-    strncat(ret, hs, MAX-strnlen(ret, MAX)-1);
-    strncat(ret, "\" | ghci | tail -n 2 | head -n 1 | sed s/Prelude\\>\\ //g > ghci.txt", MAX-strnlen(ret, MAX)-1);
-
-    // execute command
-    system(ret);
-
-    // reset ret
-    memset(ret, 0, MAX);
-
-    // open file
-    result = fopen("./ghci.txt", "r");
-    if (result == NULL) {
-        return -1;
-    }
-
-    // read first line, save to ret
-    while ((c = getc(result)) != '\n') {
-        ret[i] = c;
-        i++;
-    }
-
-    // close file
-    fclose(result);
-
-    return 0;
 }
