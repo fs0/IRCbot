@@ -7,7 +7,7 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.2"
+#define VERSION "1.2.1"
 
 int mute; // non-zero -> bot is muted
 int logFlag; // non-zero -> log messages
