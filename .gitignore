@@ -3,4 +3,5 @@ bot
 *.txt
 passphrase
 bot.log
+msg.log
 startbot.sh

@@ -13,9 +13,10 @@
 /* max length of message */
 #define MAX 1024
 #define LOG "./bot.log"
+#define MSGLOG "./msg.log"
 
 /* print to logfile
- * parameter s: string to print to log file
+ * parameter s: string to print to logfile
  */
 void logprint(char *s);
 
@@ -23,6 +24,11 @@ void logprint(char *s);
  * parameter s: error string
  */
 void errprint(char *s);
+
+/* print messages to message-logfile
+ * parameter s: string to print to logfile
+ */
+void msglogprint(char *s);
 
 /* find s2 in s1
  * parameter s1: string to be searched in

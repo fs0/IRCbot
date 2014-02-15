@@ -9,7 +9,8 @@
 
 #define VERSION "1.2"
 
-int mute;
+int mute; // non-zero -> bot is muted
+int logFlag; // non-zero -> log messages
 
 /* initialization
  * parameter sckt: socket

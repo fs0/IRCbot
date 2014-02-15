@@ -1,13 +1,14 @@
 #include "bot.h"
 
 extern int mute;
+extern int logFlag;
 
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
     int ret = 0;
 
     #ifdef DEBUG
-    logprint("start init()\n");
+    logprint("start init()");
     #endif
 
     if (loginpass(sckt) == -1) ret = -1;
@@ -19,16 +20,16 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
 
     if (ret == -1) {
         #ifdef DEBUG
-        logprint("trying to close socket\n");
+        logprint("trying to close socket");
         #endif
         if (close(sckt) == -1) {
-            errprint("close(sckt)\n");
+            errprint("close(sckt)");
         }
         return -1;
     }
     
     #ifdef DEBUG
-    logprint("end init()\n");
+    logprint("end init()");
     #endif
 
     return 0;
@@ -40,7 +41,7 @@ int loop(int sckt, char *nick, char *channel)
     int ret = 0;
 
     #ifdef DEBUG
-    logprint("start loop()\n");
+    logprint("start loop()");
     #endif
 
     while (1==1) {
@@ -53,7 +54,7 @@ int loop(int sckt, char *nick, char *channel)
         
         if (ret == -1) {
             #ifdef DEBUG
-            logprint("ret == -1 at end of loop()\n");
+            logprint("ret == -1 at end of loop()");
             #endif
             break;
         } else if (ret == 1) {
@@ -65,7 +66,7 @@ int loop(int sckt, char *nick, char *channel)
     }
 
     #ifdef DEBUG
-    logprint("end loop()\n");
+    logprint("end loop()");
     #endif
 
     return ret;
@@ -84,20 +85,21 @@ int react (int sckt, char *nick, char *channel, char *serverline)
     snprintf(privmsg, MAX, "%s", "PRIVMSG ");
     strncat(privmsg, nick, MAX-strnlen(privmsg, MAX)-1);
 
+
     if (strfind(serverline, "PING :")) {
         #ifdef DEBUG
-        logprint("strfind PING\n");
+        logprint("strfind PING");
         #endif
         ret = sendpong(sckt, serverline);
     } else if (strfind(serverline, privmsg)) { /*private message*/
 
         #ifdef DEBUG
-        logprint("strfind privmsg\n");
+        logprint("strfind privmsg");
         #endif
 
         if (strfind(serverline, ":!disconnect")) { /*disconnect the bot*/
             #ifdef DEBUG
-            logprint("strfind !disconnect\n");
+            logprint("strfind !disconnect");
             #endif
 
             if (checkPass(serverline)) {
@@ -108,7 +110,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             }
         } else if (strfind(serverline, ":!reconnect")) { /*disconnect/reconnect*/
             #ifdef DEBUG
-            logprint("strfind !reconnect\n");
+            logprint("strfind !reconnect");
             #endif
 
             if (checkPass(serverline)) {
@@ -119,12 +121,12 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             }
         } else if (strfind(serverline, ":!ip")) {
             #ifdef DEBUG
-            logprint("strfind !ip\n");
+            logprint("strfind !ip");
             #endif
 
             if (checkPass(serverline)) {
                 if (getIP(tmp, nick, sckt) == -1) {
-                    errprint("getIP()\n");
+                    errprint("getIP()");
                     ret = -1;
                 } else {
                     ret = privatemsg(tmp, serverline, sckt);
@@ -156,25 +158,46 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             }
         } else if (strfind(serverline, ":!os")) {
             #ifdef DEBUG
-            logprint("strfind !os\n");
+            logprint("strfind !os");
             #endif
             memset(tmp, 0, MAX);
             osinfo(tmp);
             ret = privatemsg(tmp, serverline, sckt);
         } else if (strfind(serverline, ":!version")) {
             #ifdef DEBUG
-            logprint("strfind !version\n");
+            logprint("strfind !version");
             #endif
             memset(tmp, 0, MAX);
             snprintf(tmp, MAX, "Version: %s", VERSION);
             ret = privatemsg(tmp, serverline, sckt);
+        } else if (strfind(serverline, "!log")) {
+            #ifdef DEBUG
+            logprint("strfind !log");
+            #endif
+
+            if (checkPass(serverline)) {
+                if (logFlag) {
+                    logFlag = 0;
+                    ret = privatemsg("Not logging anymore.", serverline, sckt);
+                } else {
+                    logFlag = 1;
+                    ret = privatemsg("Logging all messages.", serverline, sckt);
+                }
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
         } else {
             #ifdef DEBUG
-            logprint("else block\n");
+            logprint("else block");
             #endif
             ret = privatemsg("No!", serverline, sckt);
         }
     } 
+
+    /*log messages*/
+    if (logFlag) {
+        msglogprint(serverline);
+    }
     
     return ret;
 }
@@ -187,7 +210,7 @@ int privatemsg(char *msg, char *serverline, int sckt)
     memset(user, 0, MAX);
 
     #ifdef DEBUG
-    logprint("start privatemsg()\n");
+    logprint("start privatemsg()");
     #endif
 
     if (!mute) {
@@ -195,7 +218,6 @@ int privatemsg(char *msg, char *serverline, int sckt)
         #ifdef DEBUG
         logprint("username: ");
         logprint(user);
-        logprint("\n");
         #endif
         snprintf(send, MAX, "%s", "PRIVMSG ");
         strncat(send, user, MAX-strnlen(send, MAX)-1);
@@ -208,12 +230,12 @@ int privatemsg(char *msg, char *serverline, int sckt)
         }
     } else {
         #ifdef DEBUG
-        logprint("bot is muted\n");
+        logprint("bot is muted");
         #endif
     }
 
     #ifdef DEBUG
-    logprint("end privatemsg()\n");
+    logprint("end privatemsg()");
     #endif
 
     return 0;
@@ -226,7 +248,7 @@ int sendcommand(char *s, int sckt)
     memset(send, 0, MAX);
     
     #ifdef DEBUG
-    logprint("start sendcommand()\n");
+    logprint("start sendcommand()");
     #endif
 
     snprintf(send, MAX, "%s", s);
@@ -238,7 +260,7 @@ int sendcommand(char *s, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end sendcommand()\n");
+    logprint("end sendcommand()");
     #endif
 
     return 0;
@@ -250,7 +272,7 @@ int getIP(char *ip, char *nick, int sckt)
     memset(send, 0, MAX);
 
     #ifdef DEBUG
-    logprint("start getIP()\n");
+    logprint("start getIP()");
     #endif
 
     snprintf(send, MAX, "%s", "WHOIS ");
@@ -272,7 +294,7 @@ int getIP(char *ip, char *nick, int sckt)
     }
 
     #ifdef DEBUG
-    logprint("end getIP()\n");
+    logprint("end getIP()");
     #endif
     
     return 0;
