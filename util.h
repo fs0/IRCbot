@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 /* max length of message */
 #define MAX 1024

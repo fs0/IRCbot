@@ -4,7 +4,16 @@ void logprint(char *s)
 {
     FILE *log;
     log = fopen(LOG, "a");
-    fprintf(log, "%s", s);
+    time_t t = time(NULL);
+    struct tm timeinfo = *localtime(&t);
+    fprintf(log, "[%04d-%02d-%02d %02d:%02d:%02d] %s",
+                  timeinfo.tm_year+1900,
+                  timeinfo.tm_mon+1,
+                  timeinfo.tm_mday,
+                  timeinfo.tm_hour,
+                  timeinfo.tm_min,
+                  timeinfo.tm_sec,
+                  s);
     fclose(log);
 }
 
