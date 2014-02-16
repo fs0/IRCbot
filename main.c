@@ -12,21 +12,22 @@ int main(int argc, char *argv[])
     logprint("start main()");
     #endif
 
-    if (argc < 5) {
+    if (argc < 6) {
         printf("\n");
-        printf("  parameters: server port nick channel [mute]\n");
+        printf("  parameters: server port nick realname channel [mute]\n");
         printf("\n");
-        printf("  server:  freenode server rotation is chat.freenode.net\n");
-        printf("  port:    usually 6667\n");
-        printf("  nick:    nickname\n");
-        printf("  channel: channelname (put a \\ before the #)\n");
-        printf("  mute:    set this to non-zero to mute the bot (optional)\n");
+        printf("  server:   freenode server rotation is chat.freenode.net\n");
+        printf("  port:     usually 6667\n");
+        printf("  nick:     nickname\n");
+        printf("  realname: preferably your own nick (in case of problems with the bot)\n");
+        printf("  channel:  channelname (put a \\ before the #)\n");
+        printf("  mute:     set this to non-zero to mute the bot (optional)\n");
         printf("\n");
         return 0;
     }
 
-    if (argc == 6) {
-        mute = atoi(argv[5]); // set mute state
+    if (argc == 7) {
+        mute = atoi(argv[6]); // set mute state
     } else {
         mute = 0; // default, not muted
     }
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
             #ifdef DEBUG
             logprint("main(): init()");
             #endif
-            ret = init(sckt, argv[3], "guest", "Name", argv[4]);
+            ret = init(sckt, argv[3], argv[3], argv[4], argv[5]);
         }
 
         if (ret == -1) {
