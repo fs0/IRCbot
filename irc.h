@@ -40,6 +40,14 @@ int setnick(char *nick, int sckt);
  */
 int setuser(char *username, char *realname, int sckt);
 
+/* send MODE command (set mode)
+ * parameter nick: the nick of the bot
+ * parameter mode: usermode (e.g. +B to mark as bot on some servers)
+ * parameter sckt: connected socket
+ * returns: 0 if successful, -1 else
+ */
+int setmode(char *nick, char *mode, int sckt);
+
 /* wait for ":End of /MOTD"
  * parameter sckt: connected socket
  * returns: 0 if successful, -1 else

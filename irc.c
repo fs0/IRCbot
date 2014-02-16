@@ -186,6 +186,32 @@ int setuser(char *username, char *realname, int sckt)
     return 0;
 }
 
+int setmode(char *nick, char *mode, int sckt)
+{
+    char tmp[MAX];
+
+    #ifdef DEBUG
+    logprint("start setmode()");
+    #endif
+
+    snprintf(tmp, MAX, "%s", "MODE ");
+    strncat(tmp, nick, MAX-strnlen(tmp, MAX)-1);
+    strncat(tmp, " ", MAX-strnlen(tmp, MAX)-1);
+    strncat(tmp, mode, MAX-strnlen(tmp, MAX)-1);
+    strncat(tmp, " ", MAX-strnlen(tmp, MAX)-1);
+    strncat(tmp, "\r\n", MAX-strnlen(tmp, MAX)-1);
+
+    if (writeserver(tmp, sckt) == -1 ) {
+        return -1;
+    }
+
+    #ifdef DEBUG
+    logprint("end setmode()");
+    #endif
+
+    return 0;
+}
+
 int waitForResponse(int sckt)
 {
     char serverline[MAX];

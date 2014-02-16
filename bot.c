@@ -16,6 +16,7 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
     else if (setuser(username, realname, sckt) == -1) ret = -1;
     else if (waitForResponse(sckt) == -1) ret = -1;
     else if (joinchannel(channel, sckt) == -1) ret = -1;
+    else if (setmode(nick, "+B", sckt) == -1) ret = -1; // mark as Bot (works on e.g. foonetic)
     else if (loop(sckt, nick, channel) == -1) ret = -1;
 
     if (ret == -1) {
@@ -91,7 +92,11 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         logprint("strfind PING");
         #endif
         ret = sendpong(sckt, serverline);
-    } else if (strfind(serverline, privmsg)) { /*private message*/
+    } else if (logFlag) { /*if not ping, log serverline*/
+        msglogprint(serverline);
+    }
+
+    if (strfind(serverline, privmsg)) { /*private message*/
 
         #ifdef DEBUG
         logprint("strfind privmsg");
@@ -194,10 +199,6 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         }
     } 
 
-    /*log messages*/
-    if (logFlag) {
-        msglogprint(serverline);
-    }
     
     return ret;
 }
