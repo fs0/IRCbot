@@ -12,11 +12,11 @@ int connectirc(char *server, char *port)
     #endif
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    //hints.ai_family = AF_UNSPEC; // allow ipv4 or ipv6
-    hints.ai_family = AF_INET; // allow ipv4
+    /*hints.ai_family = AF_UNSPEC;*/ /* allow ipv4 or ipv6 */
+    hints.ai_family = AF_INET; /* allow ipv4 */
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
-    hints.ai_protocol = 0; // any protocol
+    hints.ai_protocol = 0; /* any protocol */
 
     if (getaddrinfo(server, port, &hints, &result) != 0) {
         errprint("getaddrinfo()");
@@ -42,7 +42,7 @@ int connectirc(char *server, char *port)
             #ifdef DEBUG
             logprint("connect() successful");
             #endif
-            break; // successfully connected
+            break; /* successfully connected */
         }
         #ifdef DEBUG
         logprint("connect() returned -1");
@@ -53,7 +53,7 @@ int connectirc(char *server, char *port)
     logprint("end loop through address structures");
     #endif
 
-    // no address succeeded
+    /* no address succeeded */
     if (rp == NULL) {
         #ifdef DEBUG
         logprint("rp is NULL");
@@ -71,14 +71,14 @@ int connectirc(char *server, char *port)
     #endif
     freeaddrinfo(result);
 
-    tv.tv_sec = 180; // 3min timeout
+    tv.tv_sec = 180; /* 3min timeout */
     tv.tv_usec = 0;
 
     #ifdef DEBUG
     logprint("setsockopt()");
     #endif
 
-    // set timeout
+    /* set timeout */
     if (setsockopt(sckt, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, (socklen_t)sizeof(struct timeval)) == -1) {
         errprint("setsockopt()");
         close(sckt);

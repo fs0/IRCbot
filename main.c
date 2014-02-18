@@ -22,13 +22,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (argc == 7) {
-        mute = atoi(argv[6]); // set mute state; mute declared in bot.h
+    if (argc >= 7) {
+        mute = atoi(argv[6]); /* set mute state; mute declared in bot.h */
     } else {
-        mute = 0; // default, not muted; mute declared in bot.h
+        mute = 0; /* default, not muted; mute declared in bot.h */
     }
 
-    logFlag = 0; // default, don't log messages; logFlag declared in bot.h
+    logFlag = 0; /* default, don't log messages; logFlag declared in bot.h */
 
     do {
         #ifdef DEBUG
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
             #ifdef DEBUG
             logprint("ret == -1: sleep()");
             #endif
-            sleep(120); // wait 2 min until reconnect
+            sleep(120); /* wait 2 min until reconnect */
         }
 
     } while (ret == -1);

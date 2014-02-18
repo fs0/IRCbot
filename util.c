@@ -65,7 +65,7 @@ int strfind(char *s1, char *s2)
             logprint("string found");
             logprint("end strfind()");
             #endif
-            return 1; // s2 in s1
+            return 1; /* s2 in s1 */
         }
     }
 
@@ -74,7 +74,7 @@ int strfind(char *s1, char *s2)
     logprint("end strfind()");
     #endif
 
-    return 0; // s2 not in s1
+    return 0; /* s2 not in s1 */
 }
 
 int getmsg(char *s, char *key)
@@ -135,14 +135,14 @@ int checkPass(char *serverline)
 
     memset(line, 0, MAX);
 
-    // open file
+    /* open file */
     fd = fopen("passphrase", "r");
     if (fd == NULL) {
         #ifdef DEBUG
         logprint("no passphrase file");
         logprint("end checkPass()");
         #endif
-        return 0; // no passphrase file -> deny
+        return 0; /* no passphrase file -> deny */
     }
 
     while ((c = getc(fd)) != EOF) {
@@ -158,7 +158,7 @@ int checkPass(char *serverline)
     logprint(line);
     #endif
 
-    // close file
+    /* close file */
     fclose(fd);
 
     #ifdef DEBUG
@@ -210,8 +210,7 @@ int getrand(int a)
     close(fd);
     random = abs(random) % a;
     
-    /*
-    // compile with -lrt
+    /* compile with -lrt
     int i, random;
     struct timespec t;
 

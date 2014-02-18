@@ -1,8 +1,8 @@
 #include "bot.h"
 
-// define external variables
-int mute; // non-zero -> bot is muted
-int logFlag; // non-zero -> log messages
+/* define external variables */
+int mute; /* non-zero -> bot is muted */
+int logFlag; /* non-zero -> log messages */
 
 int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
@@ -17,7 +17,7 @@ int init(int sckt, char *nick, char *username, char *realname, char *channel)
     else if (setuser(username, realname, sckt) == -1) ret = -1;
     else if (waitForResponse(sckt) == -1) ret = -1;
     else if (joinchannel(channel, sckt) == -1) ret = -1;
-    else if (setmode(nick, "+B", sckt) == -1) ret = -1; // mark as Bot (works on e.g. foonetic)
+    else if (setmode(nick, "+B", sckt) == -1) ret = -1; /* mark as Bot (works on e.g. foonetic) */
     else if (loop(sckt, nick, channel) == -1) ret = -1;
 
     if (ret == -1) {
@@ -112,7 +112,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             logprint("strfind !disconnect");
             #endif
             if (checkPass(serverline)) {
-                disconnectirc(sckt); // ignore return value
+                disconnectirc(sckt); /* ignore return value */
                 ret = 1;
             } else {
                 ret = privatemsg("No!", serverline, sckt);
@@ -279,7 +279,7 @@ int privatemsg(char *msg, char *serverline, int sckt)
     return 0;
 }
 
-// currently not in react
+/* currently not in react */
 int sendcommand(char *s, int sckt)
 {
     char send[MAX];

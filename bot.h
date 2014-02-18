@@ -9,9 +9,9 @@
 
 #define VERSION "1.2.2"
 
-// declare external variables
-extern int mute; // non-zero -> bot is muted
-extern int logFlag; // non-zero -> log messages
+/* declare external variables */
+extern int mute; /* non-zero -> bot is muted */
+extern int logFlag; /* non-zero -> log messages */
 
 /* initialization
  * parameter sckt: socket
