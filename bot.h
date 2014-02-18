@@ -9,6 +9,9 @@
 
 #define VERSION "1.2.2"
 
+// declare external variables
+extern int mute; // non-zero -> bot is muted
+extern int logFlag; // non-zero -> log messages
 
 /* initialization
  * parameter sckt: socket
@@ -18,7 +21,7 @@
  * parameter channel: channel to connect to
  * returns: 0 if successful, -1 else
  */
-int init(int sckt, char *nick, char *username, char *realname, char *channel, int mute_, int logFlag_);
+int init(int sckt, char *nick, char *username, char *realname, char *channel);
 
 /* main loop
  * parameter sckt: connected socket

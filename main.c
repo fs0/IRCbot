@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-    int sckt, ret, mute, logFlag;
+    int sckt, ret;
 
     #ifdef DEBUG
     logprint("start main()");
@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
     }
 
     if (argc == 7) {
-        mute = atoi(argv[6]); // set mute state
+        mute = atoi(argv[6]); // set mute state; mute declared in bot.h
     } else {
-        mute = 0; // default, not muted
+        mute = 0; // default, not muted; mute declared in bot.h
     }
 
-    logFlag = 0; // default, don't log messages
+    logFlag = 0; // default, don't log messages; logFlag declared in bot.h
 
     do {
         #ifdef DEBUG
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
             #ifdef DEBUG
             logprint("main(): init()");
             #endif
-            ret = init(sckt, argv[3], argv[3], argv[4], argv[5], mute, logFlag);
+            ret = init(sckt, argv[3], argv[3], argv[4], argv[5]);
         }
 
         if (ret == -1) {

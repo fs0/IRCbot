@@ -1,14 +1,12 @@
 #include "bot.h"
 
+// define external variables
 int mute; // non-zero -> bot is muted
 int logFlag; // non-zero -> log messages
 
-int init(int sckt, char *nick, char *username, char *realname, char *channel, int mute_, int logFlag_)
+int init(int sckt, char *nick, char *username, char *realname, char *channel)
 {
     int ret = 0;
-
-    mute = mute_;
-    logFlag = logFlag_;
 
     #ifdef DEBUG
     logprint("start init()");
@@ -65,6 +63,9 @@ int loop(int sckt, char *nick, char *channel)
             #ifdef DEBUG
             logprint("ret == 1 at end of loop");
             #endif
+            if (logFlag) {
+                msglogprint("--- Log closed ---\n");
+            }
             break;
         }
     }
@@ -197,6 +198,7 @@ int react (int sckt, char *nick, char *channel, char *serverline)
                     ret = privatemsg("Already logging.", serverline, sckt);
                 } else {
                     logFlag = 1;
+                    msglogprint("--- Log opened ---\n");
                     ret = privatemsg("Logging all messages.", serverline, sckt);
                 }
             } else {
@@ -210,8 +212,9 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             #endif
             if (checkPass(serverline)) {
                 if (logFlag) {
-                    logFlag = 0;
                     ret = privatemsg("Not logging anymore.", serverline, sckt);
+                    logFlag = 0;
+                    msglogprint("--- Log closed ---\n");
                 } else {
                     ret = privatemsg("I'm not logging.", serverline, sckt);
                 }
