@@ -45,6 +45,11 @@ int main(int argc, char *argv[])
             #ifdef DEBUG
             logprint("main(): init()");
             #endif
+
+            if (logFlag) {
+                msglogprint("--- Log opened ---\n");
+            }
+
             ret = init(sckt, argv[3], argv[3], argv[4], argv[5]);
         }
 

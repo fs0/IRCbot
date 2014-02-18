@@ -58,6 +58,9 @@ int loop(int sckt, char *nick, char *channel)
             #ifdef DEBUG
             logprint("ret == -1 at end of loop()");
             #endif
+            if (logFlag) {
+                msglogprint("--- Log closed ---\n");
+            }
             break;
         } else if (ret == 1) {
             #ifdef DEBUG
