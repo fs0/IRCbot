@@ -1,11 +1,14 @@
 #include "bot.h"
 
-extern int mute;
-extern int logFlag;
+int mute; // non-zero -> bot is muted
+int logFlag; // non-zero -> log messages
 
-int init(int sckt, char *nick, char *username, char *realname, char *channel)
+int init(int sckt, char *nick, char *username, char *realname, char *channel, int mute_, int logFlag_)
 {
     int ret = 0;
+
+    mute = mute_;
+    logFlag = logFlag_;
 
     #ifdef DEBUG
     logprint("start init()");
@@ -103,32 +106,34 @@ int react (int sckt, char *nick, char *channel, char *serverline)
         #endif
 
         if (strfind(serverline, ":!disconnect")) { /*disconnect the bot*/
+
             #ifdef DEBUG
             logprint("strfind !disconnect");
             #endif
-
             if (checkPass(serverline)) {
                 disconnectirc(sckt); // ignore return value
                 ret = 1;
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
         } else if (strfind(serverline, ":!reconnect")) { /*disconnect/reconnect*/
+
             #ifdef DEBUG
             logprint("strfind !reconnect");
             #endif
-
             if (checkPass(serverline)) {
                 disconnectirc(sckt);
                 ret = -1;
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
         } else if (strfind(serverline, ":!ip")) {
+
             #ifdef DEBUG
             logprint("strfind !ip");
             #endif
-
             if (checkPass(serverline)) {
                 if (getIP(tmp, nick, sckt) == -1) {
                     errprint("getIP()");
@@ -139,51 +144,57 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
         } else if (strfind(serverline, "!mute")) {
+
             #ifdef DEBUG
             logprint("strfind !mute");
             #endif
-
             if (checkPass(serverline)) {
                 mute = 1;
                 ret = privatemsg("Muted.", serverline, sckt);
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
         } else if (strfind(serverline, "!unmute")) {
+
             #ifdef DEBUG
             logprint("strfind !unmute");
             #endif
-
             if (checkPass(serverline)) {
                 mute = 0;
                 ret = privatemsg("Unmuted.", serverline, sckt);
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
         } else if (strfind(serverline, ":!os")) {
+
             #ifdef DEBUG
             logprint("strfind !os");
             #endif
             memset(tmp, 0, MAX);
             osinfo(tmp);
             ret = privatemsg(tmp, serverline, sckt);
+
         } else if (strfind(serverline, ":!version")) {
+
             #ifdef DEBUG
             logprint("strfind !version");
             #endif
             memset(tmp, 0, MAX);
             snprintf(tmp, MAX, "Version: %s", VERSION);
             ret = privatemsg(tmp, serverline, sckt);
+
         } else if (strfind(serverline, "!log")) {
+
             #ifdef DEBUG
             logprint("strfind !log");
             #endif
-
             if (checkPass(serverline)) {
                 if (logFlag) {
-                    logFlag = 0;
-                    ret = privatemsg("Not logging anymore.", serverline, sckt);
+                    ret = privatemsg("Already logging.", serverline, sckt);
                 } else {
                     logFlag = 1;
                     ret = privatemsg("Logging all messages.", serverline, sckt);
@@ -191,14 +202,32 @@ int react (int sckt, char *nick, char *channel, char *serverline)
             } else {
                 ret = privatemsg("No!", serverline, sckt);
             }
+
+        } else if (strfind(serverline, "!dontlog")) {
+
+            #ifdef DEBUG
+            logprint("strfind !dontlog");
+            #endif
+            if (checkPass(serverline)) {
+                if (logFlag) {
+                    logFlag = 0;
+                    ret = privatemsg("Not logging anymore.", serverline, sckt);
+                } else {
+                    ret = privatemsg("I'm not logging.", serverline, sckt);
+                }
+            } else {
+                ret = privatemsg("No!", serverline, sckt);
+            }
+
         } else {
+
             #ifdef DEBUG
             logprint("else block");
             #endif
             ret = privatemsg("No!", serverline, sckt);
+
         }
     } 
-
     
     return ret;
 }

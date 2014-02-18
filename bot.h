@@ -7,10 +7,8 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.2.1"
+#define VERSION "1.2.2"
 
-int mute; // non-zero -> bot is muted
-int logFlag; // non-zero -> log messages
 
 /* initialization
  * parameter sckt: socket
@@ -20,7 +18,7 @@ int logFlag; // non-zero -> log messages
  * parameter channel: channel to connect to
  * returns: 0 if successful, -1 else
  */
-int init(int sckt, char *nick, char *username, char *realname, char *channel);
+int init(int sckt, char *nick, char *username, char *realname, char *channel, int mute_, int logFlag_);
 
 /* main loop
  * parameter sckt: connected socket

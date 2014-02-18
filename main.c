@@ -1,12 +1,8 @@
 #include "bot.h"
 
-extern int mute;
-extern int logFlag;
-
 int main(int argc, char *argv[])
 {
-    int sckt;
-    int ret;
+    int sckt, ret, mute, logFlag;
 
     #ifdef DEBUG
     logprint("start main()");
@@ -49,7 +45,7 @@ int main(int argc, char *argv[])
             #ifdef DEBUG
             logprint("main(): init()");
             #endif
-            ret = init(sckt, argv[3], argv[3], argv[4], argv[5]);
+            ret = init(sckt, argv[3], argv[3], argv[4], argv[5], mute, logFlag);
         }
 
         if (ret == -1) {

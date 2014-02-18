@@ -21,7 +21,8 @@ Additionally, you'll need the following textfile:
 Controlling the bot:
 * To disconnect the bot, use `/msg <nick> !disconnect <passphrase>`
 * To reconnect the bot, use `/msg <nick> !reconnect <passphrase>` (note: Bot waits 2min before reconnecting (main.c))
-* To turn on/off logging,  use `/msg <nick> !log <passphrase>`
+* To turn on logging,  use `/msg <nick> !log <passphrase>`
+* To turn off logging,  use `/msg <nick> !dontlog <passphrase>`
 * To mute the bot, use `/msg <nick> !mute <passphrase>`
 * To unmute the bot, use `/msg <nick> !unmute <passphrase>`
 * To get the "connecting from" line, use `\msg <nick> !ip <passphrase>`
