@@ -25,7 +25,7 @@ Controlling the bot:
 * To turn off logging,  use `/msg <nick> !dontlog <passphrase>`
 * To mute the bot, use `/msg <nick> !mute <passphrase>`
 * To unmute the bot, use `/msg <nick> !unmute <passphrase>`
-* To get the "connecting from" line, use `\msg <nick> !ip <passphrase>`
+* To get the "connecting from" line, use `/msg <nick> !ip <passphrase>`
 * To get OS information, use `/msg <nick> !os`
 * To get the version, use `/msg <nick> !version`
 
