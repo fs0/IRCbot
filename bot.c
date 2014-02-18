@@ -255,9 +255,14 @@ int privatemsg(char *msg, char *serverline, int sckt)
         strncat(send, msg, MAX-strnlen(send, MAX)-1);
         strncat(send, "\r\n", MAX-strnlen(send, MAX)-1);
 
+        if (logFlag) {
+            msglogprint(send);
+        }
+
         if (writeserver(send, sckt) == -1) {
             return -1;
         }
+
     } else {
         #ifdef DEBUG
         logprint("bot is muted");
