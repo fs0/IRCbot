@@ -12,7 +12,7 @@ where
 * port: usually 6667
 * nick: the name of the bot
 * realname: preferably your own nick (in case of problems with the bot)
-* channel: the name of the channel, e.g. \#yourtestchannel (remember to put a \ before the #)
+* channel: the name of the channel, e.g. \#channel (remember to put a \ before the #)
 * mute: set this to non-zero to mute the bot
 * log: set this to non-zero to log all messages
 
