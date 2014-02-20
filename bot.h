@@ -7,7 +7,7 @@
 #include "irc.h"
 #include "util.h"
 
-#define VERSION "1.2.2"
+#define VERSION "1.2.3"
 
 /* declare external variables */
 extern int mute; /* non-zero -> bot is muted */

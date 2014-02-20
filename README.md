@@ -5,7 +5,7 @@ Simple IRC Bot
 
 Start the bot with:
   ```bash
-  $ ./bot server port nick realname channel [mute]
+  $ ./bot <server> <port> <nick> <realname> <channel> <mute> <log>
   ```
 where 
 * server: address of the IRC server, e.g. irc.foonetic.net
@@ -13,7 +13,8 @@ where
 * nick: the name of the bot
 * realname: preferably your own nick (in case of problems with the bot)
 * channel: the name of the channel, e.g. \#yourtestchannel (remember to put a \ before the #)
-* mute: set this to non-zero to mute the bot (optional)
+* mute: set this to non-zero to mute the bot
+* log: set this to non-zero to log all messages
 
 Additionally, you'll need the following textfile:
 * passphrase: contains the passphrase (for at least a bit of security)

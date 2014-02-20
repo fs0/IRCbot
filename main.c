@@ -8,27 +8,23 @@ int main(int argc, char *argv[])
     logprint("start main()");
     #endif
 
-    if (argc < 6) {
+    if (argc < 8) {
         printf("\n");
-        printf("  parameters: server port nick realname channel [mute]\n");
+        printf("  parameters: <server> <port> <nick> <realname> <channel> <mute> <log>\n");
         printf("\n");
         printf("  server:   freenode server rotation is chat.freenode.net\n");
         printf("  port:     usually 6667\n");
         printf("  nick:     nickname\n");
         printf("  realname: preferably your own nick (in case of problems with the bot)\n");
         printf("  channel:  channelname (put a \\ before the #)\n");
-        printf("  mute:     set this to non-zero to mute the bot (optional)\n");
+        printf("  mute:     set this to non-zero to mute the bot\n");
+        printf("  log:      set this to non-zero to log all messages\n");
         printf("\n");
         return 0;
     }
 
-    if (argc >= 7) {
-        mute = atoi(argv[6]); /* set mute state; mute declared in bot.h */
-    } else {
-        mute = 0; /* default, not muted; mute declared in bot.h */
-    }
-
-    logFlag = 0; /* default, don't log messages; logFlag declared in bot.h */
+    mute = atoi(argv[6]); /* set mute state; mute declared in bot.h */
+    logFlag = atoi(argv[7]); /* default, don't log messages; logFlag declared in bot.h */
 
     do {
         #ifdef DEBUG
